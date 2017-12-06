@@ -216,23 +216,20 @@ void Qt5FilePicker::cleanupProxy()
     delete _dialog;
 }
 
-void SAL_CALL Qt5FilePicker::addFilePickerListener(
-    const uno::Reference<XFilePickerListener>& xListener) throw(uno::RuntimeException,
-                                                                std::exception)
+void SAL_CALL
+Qt5FilePicker::addFilePickerListener(const uno::Reference<XFilePickerListener>& xListener)
 {
     SolarMutexGuard aGuard;
     m_xListener = xListener;
 }
 
-void SAL_CALL Qt5FilePicker::removeFilePickerListener(
-    const uno::Reference<XFilePickerListener>&) throw(uno::RuntimeException, std::exception)
+void SAL_CALL Qt5FilePicker::removeFilePickerListener(const uno::Reference<XFilePickerListener>&)
 {
     SolarMutexGuard aGuard;
     m_xListener.clear();
 }
 
-void SAL_CALL Qt5FilePicker::setTitle(const OUString& title) throw(uno::RuntimeException,
-                                                                   std::exception)
+void SAL_CALL Qt5FilePicker::setTitle(const OUString& title)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -243,7 +240,7 @@ void SAL_CALL Qt5FilePicker::setTitle(const OUString& title) throw(uno::RuntimeE
     _dialog->setWindowTitle(toQString(title));
 }
 
-sal_Int16 SAL_CALL Qt5FilePicker::execute() throw(uno::RuntimeException, std::exception)
+sal_Int16 SAL_CALL Qt5FilePicker::execute()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -280,8 +277,7 @@ sal_Int16 SAL_CALL Qt5FilePicker::execute() throw(uno::RuntimeException, std::ex
     return ExecutableDialogResults::CANCEL;
 }
 
-void SAL_CALL Qt5FilePicker::setMultiSelectionMode(sal_Bool multiSelect) throw(
-    uno::RuntimeException, std::exception)
+void SAL_CALL Qt5FilePicker::setMultiSelectionMode(sal_Bool multiSelect)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -295,8 +291,7 @@ void SAL_CALL Qt5FilePicker::setMultiSelectionMode(sal_Bool multiSelect) throw(
         _dialog->setFileMode(QFileDialog::ExistingFile);
 }
 
-void SAL_CALL Qt5FilePicker::setDefaultName(const OUString& name) throw(uno::RuntimeException,
-                                                                        std::exception)
+void SAL_CALL Qt5FilePicker::setDefaultName(const OUString& name)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -307,8 +302,7 @@ void SAL_CALL Qt5FilePicker::setDefaultName(const OUString& name) throw(uno::Run
     _dialog->selectUrl(QUrl(toQString(name)));
 }
 
-void SAL_CALL Qt5FilePicker::setDisplayDirectory(const OUString& dir) throw(uno::RuntimeException,
-                                                                            std::exception)
+void SAL_CALL Qt5FilePicker::setDisplayDirectory(const OUString& dir)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -319,7 +313,7 @@ void SAL_CALL Qt5FilePicker::setDisplayDirectory(const OUString& dir) throw(uno:
     _dialog->selectUrl(QUrl(toQString(dir)));
 }
 
-OUString SAL_CALL Qt5FilePicker::getDisplayDirectory() throw(uno::RuntimeException, std::exception)
+OUString SAL_CALL Qt5FilePicker::getDisplayDirectory()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -330,8 +324,7 @@ OUString SAL_CALL Qt5FilePicker::getDisplayDirectory() throw(uno::RuntimeExcepti
     return toOUString(_dialog->directoryUrl().url());
 }
 
-uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getFiles() throw(uno::RuntimeException,
-                                                                 std::exception)
+uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getFiles()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -344,8 +337,7 @@ uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getFiles() throw(uno::RuntimeExc
     return seq;
 }
 
-uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSelectedFiles() throw(uno::RuntimeException,
-                                                                         std::exception)
+uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSelectedFiles()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -360,8 +352,7 @@ uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSelectedFiles() throw(uno::Ru
     return seq;
 }
 
-void SAL_CALL Qt5FilePicker::appendFilter(const OUString& title, const OUString& filter) throw(
-    lang::IllegalArgumentException, uno::RuntimeException, std::exception)
+void SAL_CALL Qt5FilePicker::appendFilter(const OUString& title, const OUString& filter)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -385,8 +376,7 @@ void SAL_CALL Qt5FilePicker::appendFilter(const OUString& title, const OUString&
     _filters << QString("%1 (%2)").arg(f).arg(t);
 }
 
-void SAL_CALL Qt5FilePicker::setCurrentFilter(const OUString& title) throw(
-    lang::IllegalArgumentException, uno::RuntimeException, std::exception)
+void SAL_CALL Qt5FilePicker::setCurrentFilter(const OUString& title)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -397,7 +387,7 @@ void SAL_CALL Qt5FilePicker::setCurrentFilter(const OUString& title) throw(
     _currentFilter = toQString(title);
 }
 
-OUString SAL_CALL Qt5FilePicker::getCurrentFilter() throw(uno::RuntimeException, std::exception)
+OUString SAL_CALL Qt5FilePicker::getCurrentFilter()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -419,10 +409,8 @@ OUString SAL_CALL Qt5FilePicker::getCurrentFilter() throw(uno::RuntimeException,
     return toOUString(filter);
 }
 
-void SAL_CALL Qt5FilePicker::appendFilterGroup(
-    const OUString& rGroupTitle,
-    const uno::Sequence<beans::StringPair>& filters) throw(lang::IllegalArgumentException,
-                                                           uno::RuntimeException, std::exception)
+void SAL_CALL Qt5FilePicker::appendFilterGroup(const OUString& rGroupTitle,
+                                               const uno::Sequence<beans::StringPair>& filters)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -439,8 +427,7 @@ void SAL_CALL Qt5FilePicker::appendFilterGroup(
 }
 
 void SAL_CALL Qt5FilePicker::setValue(sal_Int16 controlId, sal_Int16 nControlAction,
-                                      const uno::Any& value) throw(uno::RuntimeException,
-                                                                   std::exception)
+                                      const uno::Any& value)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -458,9 +445,7 @@ void SAL_CALL Qt5FilePicker::setValue(sal_Int16 controlId, sal_Int16 nControlAct
         OSL_TRACE("set label on unknown control %d", controlId);
 }
 
-uno::Any SAL_CALL Qt5FilePicker::getValue(sal_Int16 controlId,
-                                          sal_Int16 nControlAction) throw(uno::RuntimeException,
-                                                                          std::exception)
+uno::Any SAL_CALL Qt5FilePicker::getValue(sal_Int16 controlId, sal_Int16 nControlAction)
 {
     if (CHECKBOX_AUTOEXTENSION == controlId)
         // We ignore this one and rely on QFileDialog to provide the function.
@@ -489,9 +474,7 @@ uno::Any SAL_CALL Qt5FilePicker::getValue(sal_Int16 controlId,
     return res;
 }
 
-void SAL_CALL Qt5FilePicker::enableControl(sal_Int16 controlId,
-                                           sal_Bool enable) throw(uno::RuntimeException,
-                                                                  std::exception)
+void SAL_CALL Qt5FilePicker::enableControl(sal_Int16 controlId, sal_Bool enable)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -505,9 +488,7 @@ void SAL_CALL Qt5FilePicker::enableControl(sal_Int16 controlId,
         OSL_TRACE("enable unknown control %d", controlId);
 }
 
-void SAL_CALL Qt5FilePicker::setLabel(sal_Int16 controlId,
-                                      const OUString& label) throw(uno::RuntimeException,
-                                                                   std::exception)
+void SAL_CALL Qt5FilePicker::setLabel(sal_Int16 controlId, const OUString& label)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -525,8 +506,7 @@ void SAL_CALL Qt5FilePicker::setLabel(sal_Int16 controlId,
         OSL_TRACE("set label on unknown control %d", controlId);
 }
 
-OUString SAL_CALL Qt5FilePicker::getLabel(sal_Int16 controlId) throw(uno::RuntimeException,
-                                                                     std::exception)
+OUString SAL_CALL Qt5FilePicker::getLabel(sal_Int16 controlId)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -643,8 +623,7 @@ void Qt5FilePicker::addCustomControl(sal_Int16 controlId)
     }
 }
 
-void SAL_CALL Qt5FilePicker::initialize(const uno::Sequence<uno::Any>& args) throw(
-    uno::Exception, uno::RuntimeException, std::exception)
+void SAL_CALL Qt5FilePicker::initialize(const uno::Sequence<uno::Any>& args)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -762,9 +741,9 @@ void SAL_CALL Qt5FilePicker::initialize(const uno::Sequence<uno::Any>& args) thr
     _dialog->setWindowTitle(getResString(resId));
 }
 
-void SAL_CALL Qt5FilePicker::cancel() throw(uno::RuntimeException, std::exception) {}
+void SAL_CALL Qt5FilePicker::cancel() {}
 
-void SAL_CALL Qt5FilePicker::disposing(const lang::EventObject& rEvent) throw(uno::RuntimeException)
+void SAL_CALL Qt5FilePicker::disposing(const lang::EventObject& rEvent)
 {
     uno::Reference<XFilePickerListener> xFilePickerListener(rEvent.Source, uno::UNO_QUERY);
 
@@ -774,20 +753,14 @@ void SAL_CALL Qt5FilePicker::disposing(const lang::EventObject& rEvent) throw(un
     }
 }
 
-OUString SAL_CALL Qt5FilePicker::getImplementationName() throw(uno::RuntimeException,
-                                                               std::exception)
-{
-    return OUString(FILE_PICKER_IMPL_NAME);
-}
+OUString SAL_CALL Qt5FilePicker::getImplementationName() { return OUString(FILE_PICKER_IMPL_NAME); }
 
-sal_Bool SAL_CALL Qt5FilePicker::supportsService(const OUString& ServiceName) throw(
-    uno::RuntimeException, std::exception)
+sal_Bool SAL_CALL Qt5FilePicker::supportsService(const OUString& ServiceName)
 {
     return cppu::supportsService(this, ServiceName);
 }
 
-uno::Sequence<OUString>
-    SAL_CALL Qt5FilePicker::getSupportedServiceNames() throw(uno::RuntimeException, std::exception)
+uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSupportedServiceNames()
 {
     return FilePicker_getSupportedServiceNames();
 }
