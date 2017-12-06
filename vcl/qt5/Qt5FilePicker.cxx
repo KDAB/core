@@ -210,7 +210,7 @@ void Qt5FilePicker::cleanupProxy()
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser aReleaser;
+        SolarMutexReleaser aReleaser;
         return Q_EMIT cleanupProxySignal();
     }
     delete _dialog;
@@ -233,7 +233,7 @@ void SAL_CALL Qt5FilePicker::setTitle(const OUString& title)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser aReleaser;
+        SolarMutexReleaser aReleaser;
         return Q_EMIT setTitleSignal(title);
     }
 
@@ -244,7 +244,7 @@ sal_Int16 SAL_CALL Qt5FilePicker::execute()
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser aReleaser;
+        SolarMutexReleaser aReleaser;
         return Q_EMIT executeSignal();
     }
 
@@ -281,7 +281,7 @@ void SAL_CALL Qt5FilePicker::setMultiSelectionMode(sal_Bool multiSelect)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT setMultiSelectionModeSignal(multiSelect);
     }
 
@@ -295,7 +295,7 @@ void SAL_CALL Qt5FilePicker::setDefaultName(const OUString& name)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT setDefaultNameSignal(name);
     }
 
@@ -306,7 +306,7 @@ void SAL_CALL Qt5FilePicker::setDisplayDirectory(const OUString& dir)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT setDisplayDirectorySignal(dir);
     }
 
@@ -317,7 +317,7 @@ OUString SAL_CALL Qt5FilePicker::getDisplayDirectory()
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT getDisplayDirectorySignal();
     }
 
@@ -328,7 +328,7 @@ uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getFiles()
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT getFilesSignal();
     }
     uno::Sequence<OUString> seq = getSelectedFiles();
@@ -341,7 +341,7 @@ uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSelectedFiles()
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT getSelectedFilesSignal();
     }
     const QList<QUrl> urls = _dialog->selectedUrls();
@@ -356,7 +356,7 @@ void SAL_CALL Qt5FilePicker::appendFilter(const OUString& title, const OUString&
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT appendFilterSignal(title, filter);
     }
 
@@ -380,7 +380,7 @@ void SAL_CALL Qt5FilePicker::setCurrentFilter(const OUString& title)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT setCurrentFilterSignal(title);
     }
 
@@ -391,7 +391,7 @@ OUString SAL_CALL Qt5FilePicker::getCurrentFilter()
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT getCurrentFilterSignal();
     }
 
@@ -414,7 +414,7 @@ void SAL_CALL Qt5FilePicker::appendFilterGroup(const OUString& rGroupTitle,
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT appendFilterGroupSignal(rGroupTitle, filters);
     }
 
@@ -431,7 +431,7 @@ void SAL_CALL Qt5FilePicker::setValue(sal_Int16 controlId, sal_Int16 nControlAct
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT setValueSignal(controlId, nControlAction, value);
     }
 
@@ -457,7 +457,7 @@ uno::Any SAL_CALL Qt5FilePicker::getValue(sal_Int16 controlId, sal_Int16 nContro
 
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT getValueSignal(controlId, nControlAction);
     }
 
@@ -478,7 +478,7 @@ void SAL_CALL Qt5FilePicker::enableControl(sal_Int16 controlId, sal_Bool enable)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT enableControlSignal(controlId, enable);
     }
 
@@ -492,7 +492,7 @@ void SAL_CALL Qt5FilePicker::setLabel(sal_Int16 controlId, const OUString& label
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT setLabelSignal(controlId, label);
     }
 
@@ -510,7 +510,7 @@ OUString SAL_CALL Qt5FilePicker::getLabel(sal_Int16 controlId)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT getLabelSignal(controlId);
     }
 
@@ -627,7 +627,7 @@ void SAL_CALL Qt5FilePicker::initialize(const uno::Sequence<uno::Any>& args)
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT initializeSignal(args);
     }
 
@@ -769,7 +769,7 @@ void Qt5FilePicker::checkProtocol()
 {
     if (qApp->thread() != QThread::currentThread())
     {
-        SalYieldMutexReleaser release;
+        SolarMutexReleaser release;
         return Q_EMIT checkProtocolSignal();
     }
 
