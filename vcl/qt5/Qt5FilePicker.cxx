@@ -31,7 +31,7 @@
 
 #include <osl/mutex.hxx>
 
-#include <vcl/fpicker.hrc>
+#include <fpicker/strings.hrc>
 #include <vcl/svapp.hxx>
 #include <vcl/sysdata.hxx>
 #include <vcl/syswin.hxx>
@@ -64,7 +64,7 @@
 
 #include "unx/geninst.h"
 
-#include "svids.hrc"
+#include "strings.hrc"
 
 using namespace ::com::sun::star;
 using namespace ::com::sun::star::ui::dialogs;
@@ -547,20 +547,14 @@ OUString SAL_CALL Qt5FilePicker::getLabel(sal_Int16 controlId) throw(uno::Runtim
     return toOUString(label);
 }
 
-QString Qt5FilePicker::getResString(sal_Int16 aRedId)
+QString Qt5FilePicker::getResString(const char* pResId)
 {
     QString aResString;
 
-    if (aRedId < 0)
+    if (pResId == nullptr)
         return aResString;
 
-    try
-    {
-        aResString = toQString(ResId(aRedId, *ImplGetResMgr()).toString());
-    }
-    catch (...)
-    {
-    }
+    aResString = toQString(VclResId(pResId));
 
     return aResString.replace('~', '&');
 }
@@ -568,7 +562,7 @@ QString Qt5FilePicker::getResString(sal_Int16 aRedId)
 void Qt5FilePicker::addCustomControl(sal_Int16 controlId)
 {
     QWidget* widget = nullptr;
-    sal_Int32 resId = -1;
+    const char* resId = nullptr;
 
     switch (controlId)
     {
@@ -751,7 +745,7 @@ void SAL_CALL Qt5FilePicker::initialize(const uno::Sequence<uno::Any>& args) thr
 
     _dialog->setAcceptMode(operationMode);
 
-    sal_Int16 resId = -1;
+    const char* resId = nullptr;
     switch (_dialog->acceptMode())
     {
         case QFileDialog::AcceptOpen:
