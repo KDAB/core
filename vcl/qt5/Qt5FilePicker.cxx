@@ -39,7 +39,7 @@
 #include "osl/file.h"
 
 #include "FPServiceInfo.hxx"
-#include "VCLQtApplication.hxx"
+// #include "VCLQtApplication.hxx"
 /*
 #include <kfilefiltercombo.h>
 #include <kfilewidget.h>
@@ -57,6 +57,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QApplication>
 #include <QtCore/QThread>
 
 #undef Region
@@ -269,10 +270,10 @@ sal_Int16 SAL_CALL Qt5FilePicker::execute() throw(uno::RuntimeException, std::ex
     _dialog->filterWidget()->setEditable(false);
 */
 
-    VCLQtApplication::preDialogSetup();
+    //VCLQtApplication::preDialogSetup();
     //block and wait for user input
     int result = _dialog->exec();
-    VCLQtApplication::postDialogCleanup();
+    //VCLQtApplication::postDialogCleanup();
     if (result == QFileDialog::Accepted)
         return ExecutableDialogResults::OK;
 
