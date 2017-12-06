@@ -46,13 +46,13 @@
 #include <kdiroperator.h>
 #include <kservicetypetrader.h>
 #include <kmessagebox.h>
-*/
-
 #include <kwindowsystem.h>
+*/
 
 // #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 #include <QtGui/QClipboard>
+#include <QtGui/QWindow>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QGridLayout>
@@ -87,6 +87,28 @@ using namespace ::com::sun::star::uno;
 //#endif
 
 // helper functions
+
+namespace KWindowSystem
+{
+void setMainWindow(QWidget* subWidget, WId mainWindowId)
+{
+    // Set the WA_NativeWindow attribute to force the creation of the QWindow.
+    // Without this QWidget::windowHandle() returns 0.
+    subWidget->setAttribute(Qt::WA_NativeWindow, true);
+    QWindow* subWindow = subWidget->windowHandle();
+    Q_ASSERT(subWindow);
+
+    QWindow* mainWindow = QWindow::fromWinId(mainWindowId);
+    if (!mainWindow)
+    {
+        // foreign windows not supported on all platforms
+        return;
+    }
+    // mainWindow is not the child of any object, so make sure it gets deleted at some point
+    QObject::connect(subWidget, &QObject::destroyed, mainWindow, &QObject::deleteLater);
+    subWindow->setTransientParent(mainWindow);
+}
+}
 
 namespace
 {
