@@ -1974,11 +1974,4 @@ SalGtkFilePicker::~SalGtkFilePicker()
     gtk_widget_destroy( m_pVBox );
 }
 
-uno::Reference< ui::dialogs::XFilePicker2 >
-GtkInstance::createFilePicker( const css::uno::Reference< css::uno::XComponentContext > &xMSF )
-{
-    return uno::Reference< ui::dialogs::XFilePicker2 >(
-                new SalGtkFilePicker( xMSF ) );
-}
-
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

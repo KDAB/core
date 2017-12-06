@@ -17,6 +17,14 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
+#include <config_qt5.h>
+
+#if ENABLE_QT5
+#define QT_NO_KEYWORDS
+// FIXME: link against some library here
+#include <Qt5FilePicker.cxx>
+#endif
+
 #include <stack>
 #include <string.h>
 #include <osl/process.h>
@@ -489,6 +497,19 @@ void GtkInstance::ResetLastSeenCairoFontOptions()
         cairo_font_options_destroy(m_pLastCairoFontOptions);
         m_pLastCairoFontOptions = nullptr;
     }
+}
+
+css::uno::Reference< css::ui::dialogs::XFilePicker2 >
+GtkInstance::createFilePicker( const css::uno::Reference< css::uno::XComponentContext > &xMSF )
+{
+    // FIXME: only do this when we detect DE using Qt5 (Plasma, LxQt, ...)
+    return css::uno::Reference< css::ui::dialogs::XFilePicker2 >(
+#if ENABLE_QT5
+                new Qt5FilePicker( xMSF )
+#else
+                new SalGtkFilePicker( xMSF )
+#endif
+    );
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
