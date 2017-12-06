@@ -370,7 +370,7 @@ uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSelectedFiles()
     const QList<QUrl> urls = _dialog->selectedUrls();
     uno::Sequence<OUString> seq(urls.size());
     int i = 0;
-    foreach (const QUrl& url, urls)
+    for (const QUrl& url : urls)
         seq[i++] = toOUString(url.url());
     return seq;
 }
