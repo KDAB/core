@@ -92,15 +92,12 @@ $(eval $(call gb_Module_add_targets,vcl,\
     CustomTarget_qt5_moc \
     Library_vclplug_qt5 \
 ))
-# FIXME: separate ENABLE_GTK3_KDE5
-ifneq ($(ENABLE_GTK3),)
-ifneq ($(QT5_HAVE_GLIB),)
+endif
+ifneq ($(ENABLE_GTK3_KDE5),)
 $(eval $(call gb_Module_add_targets,vcl,\
     CustomTarget_gtk3_kde5_moc \
     Library_vclplug_gtk3_kde5 \
 ))
-endif
-endif
 endif
 endif
 

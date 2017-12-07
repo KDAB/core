@@ -87,16 +87,13 @@ $(eval $(call gb_Library_use_externals,vclplug_gtk3_kde5,\
 
 $(eval $(call gb_Library_add_defs,vclplug_gtk3_kde5,\
     $(QT5_CFLAGS) \
+    $(QT5_GLIB_CFLAGS) \
+    $(KF5_CFLAGS) \
 ))
 $(eval $(call gb_Library_add_libs,vclplug_gtk3_kde5,\
     $(QT5_LIBS) \
-))
-
-$(eval $(call gb_Library_add_defs,vclplug_gtk3_kde5,\
-    $(QT5_GLIB_CFLAGS) \
-))
-$(eval $(call gb_Library_add_libs,vclplug_gtk3_kde5,\
     $(QT5_GLIB_LIBS) \
+    $(KF5_LIBS) \
 ))
 
 $(eval $(call gb_Library_add_exception_objects,vclplug_gtk3_kde5,\
