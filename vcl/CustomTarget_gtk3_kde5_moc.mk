@@ -7,16 +7,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-$(eval $(call gb_CustomTarget_CustomTarget,vcl/qt5))
+$(eval $(call gb_CustomTarget_CustomTarget,vcl/unx/gtk3_kde5))
 
-$(call gb_CustomTarget_get_target,vcl/qt5) : \
-	$(call gb_CustomTarget_get_workdir,vcl/qt5)/Qt5Instance.moc \
-	$(call gb_CustomTarget_get_workdir,vcl/qt5)/Qt5Timer.moc \
-	$(call gb_CustomTarget_get_workdir,vcl/qt5)/Qt5Widget.moc \
+$(call gb_CustomTarget_get_target,vcl/unx/gtk3_kde5) : \
+	$(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/Gtk3KDE5FilePicker.moc \
 
-$(call gb_CustomTarget_get_workdir,vcl/qt5)/%.moc : \
-		$(SRCDIR)/vcl/qt5/%.hxx \
-		| $(call gb_CustomTarget_get_workdir,vcl/qt5)/.dir
+$(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/%.moc : \
+		$(SRCDIR)/vcl/unx/gtk3_kde5/%.hxx \
+		| $(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/.dir
 	$(call gb_Output_announce,$(subst $(WORKDIR)/,,$@),$(true),MOC,1)
 	$(MOC5) $< -o $@
 

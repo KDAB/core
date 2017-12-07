@@ -294,11 +294,17 @@ $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,gnome, \
 	$(if $(ENABLE_GIO),ucpgio1) \
 ))
 
+# FIXME: separate ENABLE_GTK3_KDE5
 $(eval $(call gb_Helper_register_libraries_for_install,OOOLIBS,kde, \
 	$(if $(ENABLE_KDE4),kde4be1) \
 	$(if $(USING_X11), \
 		$(if $(ENABLE_KDE4),vclplug_kde4) \
-        $(if $(ENABLE_QT5),vclplug_qt5) \
+		$(if $(ENABLE_QT5), \
+			vclplug_qt5 \
+			$(if $(QT5_HAVE_GLIB), \
+				$(if $(ENABLE_GTK3),vclplug_gtk3_kde5) \
+			) \
+		) \
 	) \
 ))
 

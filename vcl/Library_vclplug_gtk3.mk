@@ -121,20 +121,4 @@ $(eval $(call gb_Library_add_libs,vclplug_gtk3,\
 ))
 endif
 
-# FIXME: only when kde integration is enabled
-ifneq ($(ENABLE_QT5),)
-$(eval $(call gb_Library_add_defs,vclplug_gtk3,\
-    $(QT5_CFLAGS) \
-))
-$(eval $(call gb_Library_add_libs,vclplug_gtk3,\
-    $(QT5_LIBS) \
-))
-# FIXME: link against some library here
-$(eval $(call gb_Library_set_include,vclplug_gtk3,\
-    $$(INCLUDE) \
-    -I$(SRCDIR)/vcl/qt5 \
-    -I$(call gb_CustomTarget_get_workdir,vcl/qt5) \
-))
-endif
-
 # vim: set noet sw=4 ts=4:

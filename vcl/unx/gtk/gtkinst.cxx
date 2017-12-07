@@ -17,14 +17,6 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include <config_qt5.h>
-
-#if ENABLE_QT5
-#define QT_NO_KEYWORDS
-// FIXME: link against some library here
-#include <Qt5FilePicker.cxx>
-#endif
-
 #include <stack>
 #include <string.h>
 #include <osl/process.h>
@@ -195,71 +187,16 @@ void GtkInstance::EnsureInit()
 
     bNeedsInit = false;
 
-#ifdef ENABLE_QT5
-    // FIXME: put into separate file / instance, share code with Qt5Instance
-    QApplication* pQApplication;
-    char** pFakeArgvFreeable = nullptr;
-
-    int nFakeArgc = 2;
-    const sal_uInt32 nParams = osl_getCommandArgCount();
-    OString aDisplay;
-    OUString aParam, aBin;
-
-    for (sal_uInt32 nIdx = 0; nIdx < nParams; ++nIdx)
-    {
-        osl_getCommandArg(nIdx, &aParam.pData);
-        if (aParam != "-display")
-            continue;
-        if (!pFakeArgvFreeable)
-        {
-            pFakeArgvFreeable = new char*[nFakeArgc + 2];
-            pFakeArgvFreeable[nFakeArgc++] = strdup("-display");
-        }
-        else
-            free(pFakeArgvFreeable[nFakeArgc]);
-
-        ++nIdx;
-        osl_getCommandArg(nIdx, &aParam.pData);
-        aDisplay = OUStringToOString(aParam, osl_getThreadTextEncoding());
-        pFakeArgvFreeable[nFakeArgc] = strdup(aDisplay.getStr());
-    }
-    if (!pFakeArgvFreeable)
-        pFakeArgvFreeable = new char*[nFakeArgc];
-    else
-        nFakeArgc++;
-
-    osl_getExecutableFile(&aParam.pData);
-    osl_getSystemPathFromFileURL(aParam.pData, &aBin.pData);
-    OString aExec = OUStringToOString(aBin, osl_getThreadTextEncoding());
-    pFakeArgvFreeable[0] = strdup(aExec.getStr());
-    pFakeArgvFreeable[1] = strdup("--nocrashhandler");
-
-    char** pFakeArgv = new char*[nFakeArgc];
-    for (int i = 0; i < nFakeArgc; i++)
-        pFakeArgv[i] = pFakeArgvFreeable[i];
-
-    char* session_manager = nullptr;
-    if (getenv("SESSION_MANAGER") != nullptr)
-    {
-        session_manager = strdup(getenv("SESSION_MANAGER"));
-        unsetenv("SESSION_MANAGER");
-    }
-
-    int* pFakeArgc = new int;
-    *pFakeArgc = nFakeArgc;
-    pQApplication = new QApplication(*pFakeArgc, pFakeArgv);
-
-    if (session_manager != nullptr)
-    {
-        // coverity[tainted_string] - trusted source for setenv
-        setenv("SESSION_MANAGER", session_manager, 1);
-        free(session_manager);
-    }
+#ifdef VCLPLUG_GTK3_KDE5_IMPLEMENTATION
+    InitQt5();
 #endif
 }
 
 GtkInstance::~GtkInstance()
 {
+#ifdef VCLPLUG_GTK3_KDE5_IMPLEMENTATION
+    DeInitQt5();
+#endif
     assert( nullptr == m_pTimer );
     DeInitAtkBridge();
     ResetLastSeenCairoFontOptions();
@@ -559,19 +496,6 @@ void GtkInstance::ResetLastSeenCairoFontOptions()
         cairo_font_options_destroy(m_pLastCairoFontOptions);
         m_pLastCairoFontOptions = nullptr;
     }
-}
-
-css::uno::Reference< css::ui::dialogs::XFilePicker2 >
-GtkInstance::createFilePicker( const css::uno::Reference< css::uno::XComponentContext > &xMSF )
-{
-    // FIXME: only do this when we detect DE using Qt5 (Plasma, LxQt, ...)
-    return css::uno::Reference< css::ui::dialogs::XFilePicker2 >(
-#if ENABLE_QT5
-                new Qt5FilePicker( xMSF )
-#else
-                new SalGtkFilePicker( xMSF )
-#endif
-    );
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

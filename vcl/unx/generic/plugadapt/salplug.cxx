@@ -167,6 +167,8 @@ static SalInstance* autodetect_plugin()
 {
     static const char* const pKDEFallbackList[] =
     {
+// FIXME: check ENABLE_GTK3_KDE5
+        "gtk3_kde5",
 #if ENABLE_KDE4
         "kde4",
 #endif

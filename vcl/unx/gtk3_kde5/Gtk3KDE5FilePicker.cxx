@@ -17,7 +17,7 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include "Qt5FilePicker.hxx"
+#include "Gtk3KDE5FilePicker.hxx"
 
 #include <com/sun/star/lang/DisposedException.hpp>
 #include <com/sun/star/lang/XMultiServiceFactory.hpp>
@@ -118,7 +118,7 @@ uno::Sequence<OUString> SAL_CALL FilePicker_getSupportedServiceNames()
     uno::Sequence<OUString> aRet(3);
     aRet[0] = "com.sun.star.ui.dialogs.FilePicker";
     aRet[1] = "com.sun.star.ui.dialogs.SystemFilePicker";
-    aRet[2] = "com.sun.star.ui.dialogs.Qt5FilePicker";
+    aRet[2] = "com.sun.star.ui.dialogs.Gtk3KDE5FilePicker";
     return aRet;
 }
 }
@@ -134,10 +134,10 @@ QString toQString(const OUString& s)
     return QString::fromUtf16(reinterpret_cast<ushort const*>(s.getStr()), s.getLength());
 }
 
-// Qt5FilePicker
+// Gtk3KDE5FilePicker
 
-Qt5FilePicker::Qt5FilePicker(const uno::Reference<uno::XComponentContext>&)
-    : Qt5FilePicker_Base(_helperMutex)
+Gtk3KDE5FilePicker::Gtk3KDE5FilePicker(const uno::Reference<uno::XComponentContext>&)
+    : Gtk3KDE5FilePicker_Base(_helperMutex)
     , allowRemoteUrls(false)
 {
     _extraControls = new QWidget();
@@ -227,9 +227,9 @@ Qt5FilePicker::Qt5FilePicker(const uno::Reference<uno::XComponentContext>&)
     connect(_dialog, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 }
 
-Qt5FilePicker::~Qt5FilePicker() { cleanupProxy(); }
+Gtk3KDE5FilePicker::~Gtk3KDE5FilePicker() { cleanupProxy(); }
 
-void Qt5FilePicker::cleanupProxy()
+void Gtk3KDE5FilePicker::cleanupProxy()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -240,19 +240,20 @@ void Qt5FilePicker::cleanupProxy()
 }
 
 void SAL_CALL
-Qt5FilePicker::addFilePickerListener(const uno::Reference<XFilePickerListener>& xListener)
+Gtk3KDE5FilePicker::addFilePickerListener(const uno::Reference<XFilePickerListener>& xListener)
 {
     SolarMutexGuard aGuard;
     m_xListener = xListener;
 }
 
-void SAL_CALL Qt5FilePicker::removeFilePickerListener(const uno::Reference<XFilePickerListener>&)
+void SAL_CALL
+Gtk3KDE5FilePicker::removeFilePickerListener(const uno::Reference<XFilePickerListener>&)
 {
     SolarMutexGuard aGuard;
     m_xListener.clear();
 }
 
-void SAL_CALL Qt5FilePicker::setTitle(const OUString& title)
+void SAL_CALL Gtk3KDE5FilePicker::setTitle(const OUString& title)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -263,7 +264,7 @@ void SAL_CALL Qt5FilePicker::setTitle(const OUString& title)
     _dialog->setWindowTitle(toQString(title));
 }
 
-sal_Int16 SAL_CALL Qt5FilePicker::execute()
+sal_Int16 SAL_CALL Gtk3KDE5FilePicker::execute()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -300,7 +301,7 @@ sal_Int16 SAL_CALL Qt5FilePicker::execute()
     return ExecutableDialogResults::CANCEL;
 }
 
-void SAL_CALL Qt5FilePicker::setMultiSelectionMode(sal_Bool multiSelect)
+void SAL_CALL Gtk3KDE5FilePicker::setMultiSelectionMode(sal_Bool multiSelect)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -314,7 +315,7 @@ void SAL_CALL Qt5FilePicker::setMultiSelectionMode(sal_Bool multiSelect)
         _dialog->setFileMode(QFileDialog::ExistingFile);
 }
 
-void SAL_CALL Qt5FilePicker::setDefaultName(const OUString& name)
+void SAL_CALL Gtk3KDE5FilePicker::setDefaultName(const OUString& name)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -325,7 +326,7 @@ void SAL_CALL Qt5FilePicker::setDefaultName(const OUString& name)
     _dialog->selectUrl(QUrl(toQString(name)));
 }
 
-void SAL_CALL Qt5FilePicker::setDisplayDirectory(const OUString& dir)
+void SAL_CALL Gtk3KDE5FilePicker::setDisplayDirectory(const OUString& dir)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -336,7 +337,7 @@ void SAL_CALL Qt5FilePicker::setDisplayDirectory(const OUString& dir)
     _dialog->selectUrl(QUrl(toQString(dir)));
 }
 
-OUString SAL_CALL Qt5FilePicker::getDisplayDirectory()
+OUString SAL_CALL Gtk3KDE5FilePicker::getDisplayDirectory()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -347,7 +348,7 @@ OUString SAL_CALL Qt5FilePicker::getDisplayDirectory()
     return toOUString(_dialog->directoryUrl().url());
 }
 
-uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getFiles()
+uno::Sequence<OUString> SAL_CALL Gtk3KDE5FilePicker::getFiles()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -360,7 +361,7 @@ uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getFiles()
     return seq;
 }
 
-uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSelectedFiles()
+uno::Sequence<OUString> SAL_CALL Gtk3KDE5FilePicker::getSelectedFiles()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -375,7 +376,7 @@ uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSelectedFiles()
     return seq;
 }
 
-void SAL_CALL Qt5FilePicker::appendFilter(const OUString& title, const OUString& filter)
+void SAL_CALL Gtk3KDE5FilePicker::appendFilter(const OUString& title, const OUString& filter)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -399,7 +400,7 @@ void SAL_CALL Qt5FilePicker::appendFilter(const OUString& title, const OUString&
     _filters << QString("%1 (%2)").arg(f).arg(t);
 }
 
-void SAL_CALL Qt5FilePicker::setCurrentFilter(const OUString& title)
+void SAL_CALL Gtk3KDE5FilePicker::setCurrentFilter(const OUString& title)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -410,7 +411,7 @@ void SAL_CALL Qt5FilePicker::setCurrentFilter(const OUString& title)
     _currentFilter = toQString(title);
 }
 
-OUString SAL_CALL Qt5FilePicker::getCurrentFilter()
+OUString SAL_CALL Gtk3KDE5FilePicker::getCurrentFilter()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -432,8 +433,8 @@ OUString SAL_CALL Qt5FilePicker::getCurrentFilter()
     return toOUString(filter);
 }
 
-void SAL_CALL Qt5FilePicker::appendFilterGroup(const OUString& rGroupTitle,
-                                               const uno::Sequence<beans::StringPair>& filters)
+void SAL_CALL Gtk3KDE5FilePicker::appendFilterGroup(const OUString& rGroupTitle,
+                                                    const uno::Sequence<beans::StringPair>& filters)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -449,8 +450,8 @@ void SAL_CALL Qt5FilePicker::appendFilterGroup(const OUString& rGroupTitle,
     }
 }
 
-void SAL_CALL Qt5FilePicker::setValue(sal_Int16 controlId, sal_Int16 nControlAction,
-                                      const uno::Any& value)
+void SAL_CALL Gtk3KDE5FilePicker::setValue(sal_Int16 controlId, sal_Int16 nControlAction,
+                                           const uno::Any& value)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -468,7 +469,7 @@ void SAL_CALL Qt5FilePicker::setValue(sal_Int16 controlId, sal_Int16 nControlAct
         OSL_TRACE("set label on unknown control %d", controlId);
 }
 
-uno::Any SAL_CALL Qt5FilePicker::getValue(sal_Int16 controlId, sal_Int16 nControlAction)
+uno::Any SAL_CALL Gtk3KDE5FilePicker::getValue(sal_Int16 controlId, sal_Int16 nControlAction)
 {
     if (CHECKBOX_AUTOEXTENSION == controlId)
         // We ignore this one and rely on QFileDialog to provide the function.
@@ -497,7 +498,7 @@ uno::Any SAL_CALL Qt5FilePicker::getValue(sal_Int16 controlId, sal_Int16 nContro
     return res;
 }
 
-void SAL_CALL Qt5FilePicker::enableControl(sal_Int16 controlId, sal_Bool enable)
+void SAL_CALL Gtk3KDE5FilePicker::enableControl(sal_Int16 controlId, sal_Bool enable)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -511,7 +512,7 @@ void SAL_CALL Qt5FilePicker::enableControl(sal_Int16 controlId, sal_Bool enable)
         OSL_TRACE("enable unknown control %d", controlId);
 }
 
-void SAL_CALL Qt5FilePicker::setLabel(sal_Int16 controlId, const OUString& label)
+void SAL_CALL Gtk3KDE5FilePicker::setLabel(sal_Int16 controlId, const OUString& label)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -529,7 +530,7 @@ void SAL_CALL Qt5FilePicker::setLabel(sal_Int16 controlId, const OUString& label
         OSL_TRACE("set label on unknown control %d", controlId);
 }
 
-OUString SAL_CALL Qt5FilePicker::getLabel(sal_Int16 controlId)
+OUString SAL_CALL Gtk3KDE5FilePicker::getLabel(sal_Int16 controlId)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -550,7 +551,7 @@ OUString SAL_CALL Qt5FilePicker::getLabel(sal_Int16 controlId)
     return toOUString(label);
 }
 
-QString Qt5FilePicker::getResString(const char* pResId)
+QString Gtk3KDE5FilePicker::getResString(const char* pResId)
 {
     QString aResString;
 
@@ -562,7 +563,7 @@ QString Qt5FilePicker::getResString(const char* pResId)
     return aResString.replace('~', '&');
 }
 
-void Qt5FilePicker::addCustomControl(sal_Int16 controlId)
+void Gtk3KDE5FilePicker::addCustomControl(sal_Int16 controlId)
 {
     QWidget* widget = nullptr;
     const char* resId = nullptr;
@@ -646,7 +647,7 @@ void Qt5FilePicker::addCustomControl(sal_Int16 controlId)
     }
 }
 
-void SAL_CALL Qt5FilePicker::initialize(const uno::Sequence<uno::Any>& args)
+void SAL_CALL Gtk3KDE5FilePicker::initialize(const uno::Sequence<uno::Any>& args)
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -764,9 +765,9 @@ void SAL_CALL Qt5FilePicker::initialize(const uno::Sequence<uno::Any>& args)
     _dialog->setWindowTitle(getResString(resId));
 }
 
-void SAL_CALL Qt5FilePicker::cancel() {}
+void SAL_CALL Gtk3KDE5FilePicker::cancel() {}
 
-void SAL_CALL Qt5FilePicker::disposing(const lang::EventObject& rEvent)
+void SAL_CALL Gtk3KDE5FilePicker::disposing(const lang::EventObject& rEvent)
 {
     uno::Reference<XFilePickerListener> xFilePickerListener(rEvent.Source, uno::UNO_QUERY);
 
@@ -776,19 +777,22 @@ void SAL_CALL Qt5FilePicker::disposing(const lang::EventObject& rEvent)
     }
 }
 
-OUString SAL_CALL Qt5FilePicker::getImplementationName() { return OUString(FILE_PICKER_IMPL_NAME); }
+OUString SAL_CALL Gtk3KDE5FilePicker::getImplementationName()
+{
+    return OUString(FILE_PICKER_IMPL_NAME);
+}
 
-sal_Bool SAL_CALL Qt5FilePicker::supportsService(const OUString& ServiceName)
+sal_Bool SAL_CALL Gtk3KDE5FilePicker::supportsService(const OUString& ServiceName)
 {
     return cppu::supportsService(this, ServiceName);
 }
 
-uno::Sequence<OUString> SAL_CALL Qt5FilePicker::getSupportedServiceNames()
+uno::Sequence<OUString> SAL_CALL Gtk3KDE5FilePicker::getSupportedServiceNames()
 {
     return FilePicker_getSupportedServiceNames();
 }
 
-void Qt5FilePicker::checkProtocol()
+void Gtk3KDE5FilePicker::checkProtocol()
 {
     if (qApp->thread() != QThread::currentThread())
     {
@@ -809,7 +813,7 @@ void Qt5FilePicker::checkProtocol()
 */
 }
 
-void Qt5FilePicker::filterChanged(const QString&)
+void Gtk3KDE5FilePicker::filterChanged(const QString&)
 {
     FilePickerEvent aEvent;
     aEvent.ElementId = LISTBOX_FILTER;
@@ -818,7 +822,7 @@ void Qt5FilePicker::filterChanged(const QString&)
         m_xListener->controlStateChanged(aEvent);
 }
 
-void Qt5FilePicker::selectionChanged()
+void Gtk3KDE5FilePicker::selectionChanged()
 {
     FilePickerEvent aEvent;
     OSL_TRACE("file selection changed");
@@ -826,6 +830,6 @@ void Qt5FilePicker::selectionChanged()
         m_xListener->fileSelectionChanged(aEvent);
 }
 
-#include "Qt5FilePicker.moc"
+#include "Gtk3KDE5FilePicker.moc"
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

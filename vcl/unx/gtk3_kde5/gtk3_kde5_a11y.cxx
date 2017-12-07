@@ -17,12 +17,22 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#pragma once
-
-// the service names
-#define FILE_PICKER_SERVICE_NAME "com.sun.star.ui.dialogs.Qt5FilePicker"
-
-// the implementation names
-#define FILE_PICKER_IMPL_NAME "com.sun.star.ui.dialogs.Qt5FilePicker"
+#include "../gtk3/a11y/gtk3atkaction.cxx"
+#include "../gtk3/a11y/gtk3atkbridge.cxx"
+#include "../gtk3/a11y/gtk3atkcomponent.cxx"
+#include "../gtk3/a11y/gtk3atkeditabletext.cxx"
+#include "../gtk3/a11y/gtk3atkfactory.cxx"
+#include "../gtk3/a11y/gtk3atkhypertext.cxx"
+#include "../gtk3/a11y/gtk3atkimage.cxx"
+#include "../gtk3/a11y/gtk3atklistener.cxx"
+#include "../gtk3/a11y/gtk3atkregistry.cxx"
+#include "../gtk3/a11y/gtk3atkselection.cxx"
+#include "../gtk3/a11y/gtk3atktable.cxx"
+#include "../gtk3/a11y/gtk3atktextattributes.cxx"
+#include "../gtk3/a11y/gtk3atktext.cxx"
+#include "../gtk3/a11y/gtk3atkutil.cxx"
+#include "../gtk3/a11y/gtk3atkvalue.cxx"
+#include "../gtk3/a11y/gtk3atkwindow.cxx"
+#include "../gtk3/a11y/gtk3atkwrapper.cxx"
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

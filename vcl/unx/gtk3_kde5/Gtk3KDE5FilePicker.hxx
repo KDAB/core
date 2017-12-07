@@ -46,9 +46,9 @@ typedef ::cppu::WeakComponentImplHelper<css::ui::dialogs::XFilePicker3,
                                         // TODO css::ui::dialogs::XFilePreview
                                         ,
                                         css::lang::XInitialization, css::lang::XServiceInfo>
-    Qt5FilePicker_Base;
+    Gtk3KDE5FilePicker_Base;
 
-class Qt5FilePicker : public QObject, public Qt5FilePicker_Base
+class Gtk3KDE5FilePicker : public QObject, public Gtk3KDE5FilePicker_Base
 {
     Q_OBJECT
 protected:
@@ -76,8 +76,8 @@ protected:
     bool allowRemoteUrls;
 
 public:
-    explicit Qt5FilePicker(const css::uno::Reference<css::uno::XComponentContext>&);
-    virtual ~Qt5FilePicker();
+    explicit Gtk3KDE5FilePicker(const css::uno::Reference<css::uno::XComponentContext>&);
+    virtual ~Gtk3KDE5FilePicker();
 
     // XFilePickerNotifier
     virtual void SAL_CALL addFilePickerListener(
@@ -244,8 +244,8 @@ Q_SIGNALS:
     void checkProtocolSignal();
 
 private:
-    Qt5FilePicker(const Qt5FilePicker&) = delete;
-    Qt5FilePicker& operator=(const Qt5FilePicker&) = delete;
+    Gtk3KDE5FilePicker(const Gtk3KDE5FilePicker&) = delete;
+    Gtk3KDE5FilePicker& operator=(const Gtk3KDE5FilePicker&) = delete;
 
     //add a custom control widget to the file dialog
     void addCustomControl(sal_Int16 controlId);
