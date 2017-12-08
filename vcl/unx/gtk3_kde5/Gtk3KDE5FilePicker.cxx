@@ -99,6 +99,35 @@ uno::Sequence<OUString> SAL_CALL FilePicker_getSupportedServiceNames()
     aRet[2] = "com.sun.star.ui.dialogs.Gtk3KDE5FilePicker";
     return aRet;
 }
+
+class WinIdEmbedder : public QObject
+{
+public:
+    WinIdEmbedder(WId winId)
+        : QObject()
+        , id(winId)
+    {
+        qApp->installEventFilter(this);
+    }
+
+protected:
+    bool eventFilter(QObject* o, QEvent* e) override
+    {
+        if (e->type() == QEvent::Show && o->isWidgetType())
+        {
+            auto* w = static_cast<QWidget*>(o);
+            if (!w->parentWidget() && w->isModal())
+            {
+                KWindowSystem::setMainWindow(w, id);
+                return false;
+            }
+        }
+        return QObject::eventFilter(o, e);
+    }
+
+private:
+    WId id;
+};
 }
 
 OUString toOUString(const QString& s)
@@ -252,14 +281,18 @@ sal_Int16 SAL_CALL Gtk3KDE5FilePicker::execute()
 
     //get the window id of the main OO window to set it for the dialog as a parent
     vcl::Window* pParentWin = Application::GetDefDialogParent();
+    WId windowId = 0;
     if (pParentWin)
     {
         const SystemEnvData* pSysData = static_cast<SystemWindow*>(pParentWin)->GetSystemData();
         if (pSysData)
         {
-            KWindowSystem::setMainWindow(_dialog, pSysData->aWindow); // unx only
+            windowId = pSysData->aWindow;
         }
     }
+
+    WinIdEmbedder embedder(windowId);
+
     /*
     _dialog->clearFilter();
     _dialog->setFilter(_filter);
