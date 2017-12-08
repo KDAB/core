@@ -67,6 +67,14 @@
 
 #include "strings.hrc"
 
+// include moc before GTK files that define Bool
+#include "Gtk3KDE5FilePicker.moc"
+
+#include <functional>
+
+#include <gtk/gtk.h>
+#include <gdk/gdkx.h>
+
 using namespace ::com::sun::star;
 using namespace ::com::sun::star::ui::dialogs;
 using namespace ::com::sun::star::ui::dialogs::TemplateDescription;
@@ -103,11 +111,19 @@ uno::Sequence<OUString> SAL_CALL FilePicker_getSupportedServiceNames()
 class WinIdEmbedder : public QObject
 {
 public:
-    WinIdEmbedder(WId winId)
+    WinIdEmbedder()
         : QObject()
-        , id(winId)
+        , id(0)
     {
-        qApp->installEventFilter(this);
+    }
+
+    void setWinId(WId winId)
+    {
+        if (winId)
+        {
+            id = winId;
+            qApp->installEventFilter(this);
+        }
     }
 
 protected:
@@ -271,6 +287,56 @@ void SAL_CALL Gtk3KDE5FilePicker::setTitle(const OUString& title)
     _dialog->setWindowTitle(toQString(title));
 }
 
+static gboolean ignoreDeleteEvent(GtkWidget* /*widget*/, GdkEvent* /*event*/,
+                                  gpointer /*user_data*/)
+{
+    return true;
+}
+
+static std::function<void()> blockMainWindow(WinIdEmbedder* winIdEmbedder)
+{
+    vcl::Window* pParentWin = Application::GetDefDialogParent();
+    if (!pParentWin)
+        return {};
+
+    const SystemEnvData* pSysData = static_cast<SystemWindow*>(pParentWin)->GetSystemData();
+    if (!pSysData)
+        return {};
+
+    winIdEmbedder->setWinId(pSysData->aWindow);
+    auto* pMainWindow = reinterpret_cast<GtkWidget*>(pSysData->pWidget);
+    if (!pMainWindow)
+        return {};
+
+    SolarMutexGuard guard;
+    auto deleteEventSignalId = g_signal_lookup("delete_event", gtk_widget_get_type());
+
+    // disable the mainwindow
+    gtk_widget_set_sensitive(pMainWindow, false);
+
+    // block the GtkSalFrame delete_event handler
+    auto blockedHandler = g_signal_handler_find(
+        pMainWindow, static_cast<GSignalMatchType>(G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DATA),
+        deleteEventSignalId, 0, nullptr, nullptr, pSysData->pSalFrame);
+    g_signal_handler_block(pMainWindow, blockedHandler);
+
+    // prevent the window from being closed
+    auto ignoreDeleteEventHandler
+        = g_signal_connect(pMainWindow, "delete_event", G_CALLBACK(ignoreDeleteEvent), nullptr);
+
+    return [pMainWindow, ignoreDeleteEventHandler, blockedHandler] {
+        SolarMutexGuard cleanupGuard;
+        // re-enable window
+        gtk_widget_set_sensitive(pMainWindow, true);
+
+        // allow it to be closed again
+        g_signal_handler_disconnect(pMainWindow, ignoreDeleteEventHandler);
+
+        // unblock the GtkSalFrame handler
+        g_signal_handler_unblock(pMainWindow, blockedHandler);
+    };
+}
+
 sal_Int16 SAL_CALL Gtk3KDE5FilePicker::execute()
 {
     if (qApp->thread() != QThread::currentThread())
@@ -280,18 +346,8 @@ sal_Int16 SAL_CALL Gtk3KDE5FilePicker::execute()
     }
 
     //get the window id of the main OO window to set it for the dialog as a parent
-    vcl::Window* pParentWin = Application::GetDefDialogParent();
-    WId windowId = 0;
-    if (pParentWin)
-    {
-        const SystemEnvData* pSysData = static_cast<SystemWindow*>(pParentWin)->GetSystemData();
-        if (pSysData)
-        {
-            windowId = pSysData->aWindow;
-        }
-    }
-
-    WinIdEmbedder embedder(windowId);
+    WinIdEmbedder winIdEmbedder;
+    auto restoreMainWindow = blockMainWindow(&winIdEmbedder);
 
     /*
     _dialog->clearFilter();
@@ -306,6 +362,10 @@ sal_Int16 SAL_CALL Gtk3KDE5FilePicker::execute()
     //block and wait for user input
     int result = _dialog->exec();
     //VCLQtApplication::postDialogCleanup();
+
+    if (restoreMainWindow)
+        restoreMainWindow();
+
     if (result == QFileDialog::Accepted)
         return ExecutableDialogResults::OK;
 
@@ -840,7 +900,5 @@ void Gtk3KDE5FilePicker::selectionChanged()
     if (m_xListener.is())
         m_xListener->fileSelectionChanged(aEvent);
 }
-
-#include "Gtk3KDE5FilePicker.moc"
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
