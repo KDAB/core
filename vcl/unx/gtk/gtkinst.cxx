@@ -306,6 +306,11 @@ thread_local std::stack<sal_uIntPtr> GtkYieldMutex::yieldCounts;
 
 void GtkYieldMutex::ThreadsEnter()
 {
+#ifdef VCLPLUG_GTK_DISABLE_YIELDCOUNTS
+    acquire();
+    return;
+#endif
+
     acquire();
     if (!yieldCounts.empty()) {
         auto n = yieldCounts.top();
@@ -318,6 +323,11 @@ void GtkYieldMutex::ThreadsEnter()
 
 void GtkYieldMutex::ThreadsLeave()
 {
+#ifdef VCLPLUG_GTK_DISABLE_YIELDCOUNTS
+    release();
+    return;
+#endif
+
     assert(m_nCount != 0);
     auto n = m_nCount - 1;
     yieldCounts.push(n);

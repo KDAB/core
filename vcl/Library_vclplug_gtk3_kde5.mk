@@ -44,6 +44,7 @@ $(eval $(call gb_Library_add_cxxflags,vclplug_gtk3_kde5,\
 $(eval $(call gb_Library_add_defs,vclplug_gtk3_kde5,\
     -DVCLPLUG_GTK_IMPLEMENTATION -DVCLPLUG_GTK3_KDE5_IMPLEMENTATION \
     -DQT_NO_KEYWORDS \
+    -DVCLPLUG_GTK_DISABLE_YIELDCOUNTS \
 ))
 
 $(eval $(call gb_Library_use_custom_headers,vclplug_gtk3_kde5,\
