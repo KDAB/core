@@ -245,9 +245,8 @@ Gtk3KDE5FilePicker::Gtk3KDE5FilePicker(const uno::Reference<uno::XComponentConte
             Qt::BlockingQueuedConnection);
 
     // XFilePickerListener notifications
-    connect(_dialog, SIGNAL(filterChanged(const QString&)), this,
-            SLOT(filterChanged(const QString&)));
-    connect(_dialog, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    connect(_dialog, SIGNAL(filterSelected(QString)), this, SLOT(filterChanged(QString)));
+    connect(_dialog, SIGNAL(fileSelected(QString)), this, SLOT(selectionChanged()));
 }
 
 Gtk3KDE5FilePicker::~Gtk3KDE5FilePicker() { cleanupProxy(); }
