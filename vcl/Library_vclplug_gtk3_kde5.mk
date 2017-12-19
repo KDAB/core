@@ -19,32 +19,27 @@
 
 $(eval $(call gb_Library_Library,vclplug_gtk3_kde5))
 
-$(eval $(call gb_Library_use_custom_headers,vclplug_qt5,vcl/unx/gtk3_kde5))
-
 # Silence deprecation warnings wholesale as long as vcl/unx/gtk3/*.cxx just
 # forward to vcl/unx/gtk/*.cxx:
 $(eval $(call gb_Library_add_cxxflags,vclplug_gtk3_kde5, \
     -Wno-deprecated-declarations \
 ))
 
-# FIXME: how to find the moc files automatically?!
 $(eval $(call gb_Library_set_include,vclplug_gtk3_kde5,\
     $$(INCLUDE) \
     -I$(SRCDIR)/vcl/inc \
     -I$(SRCDIR)/vcl/unx \
     -I$(SRCDIR)/vcl/unx/gtk3 \
-    -I$(WORKDIR)/CustomTarget/vcl/unx/gtk3_kde5 \
 ))
 
 $(eval $(call gb_Library_add_cxxflags,vclplug_gtk3_kde5,\
     $$(INCLUDE) \
     $$(GTK3_CFLAGS) \
+    $$(BOOST_CXXFLAGS) \
 ))
 
 $(eval $(call gb_Library_add_defs,vclplug_gtk3_kde5,\
     -DVCLPLUG_GTK_IMPLEMENTATION -DVCLPLUG_GTK3_KDE5_IMPLEMENTATION \
-    -DQT_NO_KEYWORDS \
-    -DVCLPLUG_GTK_DISABLE_YIELDCOUNTS \
 ))
 
 $(eval $(call gb_Library_use_custom_headers,vclplug_gtk3_kde5,\
@@ -83,19 +78,12 @@ $(eval $(call gb_Library_use_libraries,vclplug_gtk3_kde5,\
 $(eval $(call gb_Library_use_externals,vclplug_gtk3_kde5,\
 	boost_headers \
 	epoxy \
-	kde5 \
 	dbus \
 ))
 
-$(eval $(call gb_Library_add_defs,vclplug_gtk3_kde5,\
-    $(QT5_CFLAGS) \
-    $(QT5_GLIB_CFLAGS) \
-    $(KF5_CFLAGS) \
-))
 $(eval $(call gb_Library_add_libs,vclplug_gtk3_kde5,\
-    $(QT5_LIBS) \
-    $(QT5_GLIB_LIBS) \
-    $(KF5_LIBS) \
+    $(BOOST_PROCESS_LIB) \
+    $(BOOST_FILESYSTEM_LIB) \
 ))
 
 $(eval $(call gb_Library_add_exception_objects,vclplug_gtk3_kde5,\
@@ -120,6 +108,7 @@ $(eval $(call gb_Library_add_exception_objects,vclplug_gtk3_kde5,\
 	vcl/unx/gtk3_kde5/gtk3_kde5_gtkinst \
 	vcl/unx/gtk3_kde5/gtk3_kde5_gtksys \
 	vcl/unx/gtk3_kde5/gtk3_kde5_fpicker \
+	vcl/unx/gtk3_kde5/gtk3_kde5_filepicker \
 	vcl/unx/gtk3_kde5/gtk3_kde5_cairo \
 	vcl/unx/gtk3_kde5/gtk3_kde5_printwrapper \
 	vcl/unx/gtk3_kde5/gtk3_kde5_salnativewidgets-gtk \
@@ -130,7 +119,6 @@ $(eval $(call gb_Library_add_exception_objects,vclplug_gtk3_kde5,\
 	vcl/unx/gtk3_kde5/gtk3_kde5_glomenu \
 	vcl/unx/gtk3_kde5/gtk3_kde5_gloactiongroup \
 	vcl/unx/gtk3_kde5/gtk3_kde5_hudawareness \
-	vcl/unx/gtk3_kde5/Gtk3KDE5FilePicker \
 ))
 
 ifeq ($(OS),LINUX)

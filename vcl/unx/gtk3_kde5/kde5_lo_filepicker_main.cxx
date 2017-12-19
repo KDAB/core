@@ -17,25 +17,25 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include "../gtk3/gtk3gtkinst.cxx"
+#include "kde5_filepicker.hxx"
+#include "kde5_winidembedder.hxx"
+#include "kde5_filepicker_ipc.hxx"
 
-#include "gtk3_kde5_filepicker.hxx"
+#include <QApplication>
 
-#include <boost/process/exception.hpp>
+#include <iostream>
 
-uno::Reference<ui::dialogs::XFilePicker2>
-GtkInstance::createFilePicker(const uno::Reference<uno::XComponentContext>& xMSF)
+int main(int argc, char** argv)
 {
-    try
-    {
-        auto picker = uno::Reference<ui::dialogs::XFilePicker2>(new Gtk3KDE5FilePicker(xMSF));
-        return picker;
-    }
-    catch (const boost::process::process_error& error)
-    {
-        OSL_FAIL(error.what());
-        return { nullptr };
-    }
+    QApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
+    WinIdEmbedder winIdEmbedder;
+    app.installEventFilter(&winIdEmbedder);
+
+    KDE5FilePicker filePicker;
+    FilePickerIpc ipc(&filePicker, &winIdEmbedder);
+
+    return app.exec();
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

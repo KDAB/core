@@ -32,14 +32,12 @@
 
 #include <rtl/ustrbuf.hxx>
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QHash>
+#include <boost/process/child.hpp>
+#include <boost/process/pipe.hpp>
 
-class QFileDialog;
-class QWidget;
-class QLayout;
+#include "filepicker_ipc_commands.hxx"
+
+#include <functional>
 
 typedef ::cppu::WeakComponentImplHelper<css::ui::dialogs::XFilePicker3,
                                         css::ui::dialogs::XFilePickerControlAccess
@@ -48,32 +46,15 @@ typedef ::cppu::WeakComponentImplHelper<css::ui::dialogs::XFilePicker3,
                                         css::lang::XInitialization, css::lang::XServiceInfo>
     Gtk3KDE5FilePicker_Base;
 
-class Gtk3KDE5FilePicker : public QObject, public Gtk3KDE5FilePicker_Base
+class Gtk3KDE5FilePicker : public Gtk3KDE5FilePicker_Base
 {
-    Q_OBJECT
 protected:
     css::uno::Reference<css::ui::dialogs::XFilePickerListener> m_xListener;
 
-    //the dialog to display
-    QFileDialog* _dialog;
-
     osl::Mutex _helperMutex;
-
-    //running filter string to add to dialog
-    QStringList _filters;
-    // string to set the current filter
-    QString _currentFilter;
-
-    //mapping of SAL control ID's to created custom controls
-    QHash<sal_Int16, QWidget*> _customWidgets;
-
-    //widget to contain extra custom controls
-    QWidget* _extraControls;
-
-    //layout for extra custom controls
-    QLayout* _layout;
-
-    bool allowRemoteUrls;
+    boost::process::ipstream m_stdout;
+    boost::process::opstream m_stdin;
+    boost::process::child m_process;
 
 public:
     explicit Gtk3KDE5FilePicker(const css::uno::Reference<css::uno::XComponentContext>&);
@@ -144,105 +125,6 @@ public:
     virtual sal_Bool SAL_CALL supportsService(const OUString& rServiceName) override;
     virtual css::uno::Sequence<OUString> SAL_CALL getSupportedServiceNames() override;
 
-private Q_SLOTS:
-    // XExecutableDialog functions
-    void setTitleSlot(const OUString& rTitle) { return setTitle(rTitle); }
-    sal_Int16 executeSlot() { return execute(); }
-
-    // XFilePicker functions
-    void setMultiSelectionModeSlot(bool bMode) { return setMultiSelectionMode(bMode); }
-    void setDefaultNameSlot(const OUString& rName) { return setDefaultName(rName); }
-    void setDisplayDirectorySlot(const OUString& rDirectory)
-    {
-        return setDisplayDirectory(rDirectory);
-    }
-    OUString getDisplayDirectorySlot() { return getDisplayDirectory(); }
-    css::uno::Sequence<OUString> getFilesSlot() { return getFiles(); }
-
-    // XFilterManager functions
-    void appendFilterSlot(const OUString& rTitle, const OUString& rFilter)
-    {
-        return appendFilter(rTitle, rFilter);
-    }
-    void setCurrentFilterSlot(const OUString& rTitle) { return setCurrentFilter(rTitle); }
-    OUString getCurrentFilterSlot() { return getCurrentFilter(); }
-
-    // XFilterGroupManager functions
-    void appendFilterGroupSlot(const OUString& rGroupTitle,
-                               const css::uno::Sequence<css::beans::StringPair>& rFilters)
-    {
-        return appendFilterGroup(rGroupTitle, rFilters);
-    }
-
-    // XFilePickerControlAccess functions
-    void setValueSlot(sal_Int16 nControlId, sal_Int16 nControlAction, const css::uno::Any& rValue)
-    {
-        return setValue(nControlId, nControlAction, rValue);
-    }
-    css::uno::Any getValueSlot(sal_Int16 nControlId, sal_Int16 nControlAction)
-    {
-        return getValue(nControlId, nControlAction);
-    }
-    void enableControlSlot(sal_Int16 nControlId, bool bEnable)
-    {
-        return enableControl(nControlId, bEnable);
-    }
-    void setLabelSlot(sal_Int16 nControlId, const OUString& rLabel)
-    {
-        return setLabel(nControlId, rLabel);
-    }
-    OUString getLabelSlot(sal_Int16 nControlId) { return getLabel(nControlId); }
-
-    // XFilePicker2 functions
-    css::uno::Sequence<OUString> getSelectedFilesSlot() { return getSelectedFiles(); }
-
-    // XInitialization
-    void initializeSlot(const css::uno::Sequence<css::uno::Any>& rArguments)
-    {
-        return initialize(rArguments);
-    }
-
-Q_SIGNALS:
-    // XExecutableDialog functions
-    void setTitleSignal(const OUString& rTitle);
-    sal_Int16 executeSignal();
-
-    // XFilePicker functions
-    void setMultiSelectionModeSignal(bool bMode);
-    void setDefaultNameSignal(const OUString& rName);
-    void setDisplayDirectorySignal(const OUString& rDirectory);
-    OUString getDisplayDirectorySignal();
-    css::uno::Sequence<OUString> getFilesSignal();
-
-    // XFilterManager functions
-    void appendFilterSignal(const OUString& rTitle, const OUString& rFilter);
-    void setCurrentFilterSignal(const OUString& rTitle);
-    OUString getCurrentFilterSignal();
-
-    // XFilterGroupManager functions
-    void appendFilterGroupSignal(const OUString& rGroupTitle,
-                                 const css::uno::Sequence<css::beans::StringPair>& rFilters);
-
-    // XFilePickerControlAccess functions
-    void setValueSignal(sal_Int16 nControlId, sal_Int16 nControlAction,
-                        const css::uno::Any& rValue);
-    css::uno::Any getValueSignal(sal_Int16 nControlId, sal_Int16 nControlAction);
-    void enableControlSignal(sal_Int16 nControlId, bool bEnable);
-    void setLabelSignal(sal_Int16 nControlId, const OUString& rLabel);
-    OUString getLabelSignal(sal_Int16 nControlId);
-
-    // XFilePicker2 functions
-    css::uno::Sequence<OUString> getSelectedFilesSignal();
-
-    // XInitialization
-    void initializeSignal(const css::uno::Sequence<css::uno::Any>& rArguments);
-
-    // Destructor proxy
-    void cleanupProxySignal();
-
-    // Qt protocol lookup
-    void checkProtocolSignal();
-
 private:
     Gtk3KDE5FilePicker(const Gtk3KDE5FilePicker&) = delete;
     Gtk3KDE5FilePicker& operator=(const Gtk3KDE5FilePicker&) = delete;
@@ -250,14 +132,12 @@ private:
     //add a custom control widget to the file dialog
     void addCustomControl(sal_Int16 controlId);
 
-    static QString getResString(const char* pRedId);
-
-private Q_SLOTS:
-    void cleanupProxy();
-    void checkProtocol();
+    std::function<void()> blockMainWindow();
+    template <typename... Args> void sendCommand(Commands command, const Args&...);
+    template <typename... Args> void readResponse(Args&...);
 
     // emit XFilePickerListener controlStateChanged event
-    void filterChanged(const QString& filter);
+    void filterChanged();
     // emit XFilePickerListener fileSelectionChanged event
     void selectionChanged();
 };

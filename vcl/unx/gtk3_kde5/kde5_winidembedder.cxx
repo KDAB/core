@@ -17,25 +17,36 @@
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
  */
 
-#include "../gtk3/gtk3gtkinst.cxx"
+#include "kde5_winidembedder.hxx"
 
-#include "gtk3_kde5_filepicker.hxx"
+#include <QEvent>
+#include <QWidget>
+#include <KWindowSystem>
 
-#include <boost/process/exception.hpp>
-
-uno::Reference<ui::dialogs::XFilePicker2>
-GtkInstance::createFilePicker(const uno::Reference<uno::XComponentContext>& xMSF)
+WinIdEmbedder::WinIdEmbedder(QObject* parent)
+    : QObject(parent)
+    , m_id(0)
 {
-    try
-    {
-        auto picker = uno::Reference<ui::dialogs::XFilePicker2>(new Gtk3KDE5FilePicker(xMSF));
-        return picker;
-    }
-    catch (const boost::process::process_error& error)
-    {
-        OSL_FAIL(error.what());
-        return { nullptr };
-    }
 }
+
+WinIdEmbedder::~WinIdEmbedder() = default;
+
+void WinIdEmbedder::setWinId(WId winId) { m_id = winId; }
+
+bool WinIdEmbedder::eventFilter(QObject* o, QEvent* e)
+{
+    if (e->type() == QEvent::Show && o->isWidgetType())
+    {
+        auto* w = static_cast<QWidget*>(o);
+        if (!w->parentWidget() && w->isModal())
+        {
+            KWindowSystem::setMainWindow(w, m_id);
+            return false;
+        }
+    }
+    return QObject::eventFilter(o, e);
+}
+
+#include "kde5_winidembedder.moc"
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

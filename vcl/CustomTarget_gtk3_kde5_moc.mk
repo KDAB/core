@@ -10,7 +10,9 @@
 $(eval $(call gb_CustomTarget_CustomTarget,vcl/unx/gtk3_kde5))
 
 $(call gb_CustomTarget_get_target,vcl/unx/gtk3_kde5) : \
-	$(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/Gtk3KDE5FilePicker.moc \
+	$(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/kde5_filepicker.moc \
+	$(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/kde5_winidembedder.moc \
+	$(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/kde5_filepicker_ipc.moc \
 
 $(call gb_CustomTarget_get_workdir,vcl/unx/gtk3_kde5)/%.moc : \
 		$(SRCDIR)/vcl/unx/gtk3_kde5/%.hxx \

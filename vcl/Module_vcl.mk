@@ -97,6 +97,7 @@ ifneq ($(ENABLE_GTK3_KDE5),)
 $(eval $(call gb_Module_add_targets,vcl,\
     CustomTarget_gtk3_kde5_moc \
     Library_vclplug_gtk3_kde5 \
+    Executable_lo_kde5filepicker \
 ))
 endif
 endif
