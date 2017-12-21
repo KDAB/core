@@ -28,7 +28,7 @@
 #include <QtGui/QWindow>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFileDialog>
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QFormLayout>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>
 
@@ -49,7 +49,7 @@ KDE5FilePicker::KDE5FilePicker(QObject* parent)
     : QObject(parent)
     , _dialog(new QFileDialog(nullptr, QString(""), QString("~")))
     , _extraControls(new QWidget)
-    , _layout(new QGridLayout(_extraControls))
+    , _layout(new QFormLayout(_extraControls))
     , _winId(0)
     , allowRemoteUrls(false)
 {
@@ -220,9 +220,9 @@ void KDE5FilePicker::addCheckBox(sal_Int16 controlId, const QString& label, bool
 {
     auto resString = label;
     resString.replace('~', '&');
-    auto widget = new QCheckBox(resString, _extraControls);
+    auto widget = new QCheckBox(_extraControls);
     widget->setHidden(hidden);
-    _layout->addWidget(widget);
+    _layout->addRow(resString, widget);
     _customWidgets.insert(controlId, widget);
 }
 
