@@ -29,8 +29,7 @@ class FilePickerIpc : public QObject
 {
     Q_OBJECT
 public:
-    explicit FilePickerIpc(KDE5FilePicker* filePicker, WinIdEmbedder* winIdEmbedder,
-                           QObject* parent = nullptr);
+    explicit FilePickerIpc(KDE5FilePicker* filePicker, QObject* parent = nullptr);
     ~FilePickerIpc();
 
 private Q_SLOTS:
@@ -40,7 +39,6 @@ private:
     void readCommand();
 
     KDE5FilePicker* m_filePicker = nullptr;
-    WinIdEmbedder* m_winIdEmbedder = nullptr;
     QSocketNotifier* m_stdinNotifier = nullptr;
 };
 

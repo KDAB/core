@@ -29,7 +29,6 @@
 
 #include "filepicker_ipc_commands.hxx"
 #include "kde5_filepicker.hxx"
-#include "kde5_winidembedder.hxx"
 
 #include <rtl/ustring.h>
 
@@ -54,11 +53,9 @@ void sendIpcArg(std::ostream& stream, const QList<QUrl>& urls)
     }
 }
 
-FilePickerIpc::FilePickerIpc(KDE5FilePicker* filePicker, WinIdEmbedder* winIdEmbedder,
-                             QObject* parent)
+FilePickerIpc::FilePickerIpc(KDE5FilePicker* filePicker, QObject* parent)
     : QObject(parent)
     , m_filePicker(filePicker)
-    , m_winIdEmbedder(winIdEmbedder)
     , m_stdinNotifier(new QSocketNotifier(fileno(stdin), QSocketNotifier::Read, this))
 {
     connect(m_stdinNotifier, &QSocketNotifier::activated, this, &FilePickerIpc::readCommands);
@@ -92,7 +89,7 @@ void FilePickerIpc::readCommand()
         {
             sal_uIntPtr winId = 0;
             readIpcArgs(std::cin, winId);
-            m_winIdEmbedder->setWinId(winId);
+            m_filePicker->setWinId(winId);
             return;
         }
         case Commands::Execute:

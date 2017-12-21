@@ -47,13 +47,12 @@
 
 KDE5FilePicker::KDE5FilePicker(QObject* parent)
     : QObject(parent)
+    , _dialog(new QFileDialog(nullptr, QString(""), QString("~")))
+    , _extraControls(new QWidget)
+    , _layout(new QGridLayout(_extraControls))
+    , _winId(0)
     , allowRemoteUrls(false)
 {
-    _extraControls = new QWidget();
-    _layout = new QGridLayout(_extraControls);
-
-    _dialog = new QFileDialog(nullptr, QString(""), QString("~"));
-//   _extraControls);
 #if ALLOW_REMOTE_URLS
     if (KFileWidget* fileWidget = dynamic_cast<KFileWidget*>(_dialog->fileWidget()))
     {
@@ -69,6 +68,8 @@ KDE5FilePicker::KDE5FilePicker(QObject* parent)
 
     connect(_dialog, &QFileDialog::filterSelected, this, &KDE5FilePicker::filterChanged);
     connect(_dialog, &QFileDialog::fileSelected, this, &KDE5FilePicker::selectionChanged);
+
+    qApp->installEventFilter(this);
 }
 
 KDE5FilePicker::~KDE5FilePicker()
@@ -250,6 +251,22 @@ void KDE5FilePicker::checkProtocol()
     if( !protocols.contains( _dialog->baseUrl().protocol()) && !protocols.contains( "KIO" ))
         KMessageBox::error( _dialog, KIO::buildErrorString( KIO::ERR_UNSUPPORTED_PROTOCOL, _dialog->baseUrl().protocol()));
 */
+}
+
+void KDE5FilePicker::setWinId(sal_uIntPtr winId) { _winId = winId; }
+
+bool KDE5FilePicker::eventFilter(QObject* o, QEvent* e)
+{
+    if (e->type() == QEvent::Show && o->isWidgetType())
+    {
+        auto* w = static_cast<QWidget*>(o);
+        if (!w->parentWidget() && w->isModal())
+        {
+            KWindowSystem::setMainWindow(w, _winId);
+            return false;
+        }
+    }
+    return QObject::eventFilter(o, e);
 }
 
 #include "kde5_filepicker.moc"

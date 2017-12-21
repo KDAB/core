@@ -18,7 +18,6 @@
  */
 
 #include "kde5_filepicker.hxx"
-#include "kde5_winidembedder.hxx"
 #include "kde5_filepicker_ipc.hxx"
 
 #include <QApplication>
@@ -29,11 +28,9 @@ int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
-    WinIdEmbedder winIdEmbedder;
-    app.installEventFilter(&winIdEmbedder);
 
     KDE5FilePicker filePicker;
-    FilePickerIpc ipc(&filePicker, &winIdEmbedder);
+    FilePickerIpc ipc(&filePicker);
 
     return app.exec();
 }

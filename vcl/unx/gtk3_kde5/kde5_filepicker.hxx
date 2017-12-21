@@ -51,6 +51,8 @@ protected:
     //layout for extra custom controls
     QLayout* _layout;
 
+    sal_uIntPtr _winId;
+
     bool allowRemoteUrls;
 
 public:
@@ -85,14 +87,16 @@ public:
     // XInitialization
     void initialize(bool saveDialog);
 
-    // XCancellable
-    void cancel();
-
     //add a custom control widget to the file dialog
     void addCheckBox(sal_Int16 nControlId, const QString& label, bool hidden);
 
+    void setWinId(sal_uIntPtr winId);
+
 private:
     Q_DISABLE_COPY(KDE5FilePicker)
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private Q_SLOTS:
     void checkProtocol();

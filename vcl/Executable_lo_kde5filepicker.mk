@@ -85,7 +85,6 @@ $(eval $(call gb_Executable_add_libs,lo_kde5filepicker,\
 $(eval $(call gb_Executable_add_exception_objects,lo_kde5filepicker,\
 	vcl/unx/gtk3_kde5/kde5_lo_filepicker_main \
 	vcl/unx/gtk3_kde5/kde5_filepicker \
-	vcl/unx/gtk3_kde5/kde5_winidembedder \
 	vcl/unx/gtk3_kde5/kde5_filepicker_ipc \
 ))
 
