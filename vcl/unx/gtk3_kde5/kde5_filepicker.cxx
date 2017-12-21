@@ -19,7 +19,8 @@
 
 #include "kde5_filepicker.hxx"
 
-#include <kwindowsystem.h>
+#include <KWindowSystem>
+#include <KFileWidget>
 
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
@@ -30,7 +31,6 @@
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>
-#include <QtCore/QThread>
 
 // The dialog should check whether LO also supports the protocol
 // provided by KIO, and KFileWidget::dirOperator() is only 4.3+ .
@@ -220,7 +220,7 @@ void KDE5FilePicker::addCheckBox(sal_Int16 controlId, const QString& label, bool
 {
     auto resString = label;
     resString.replace('~', '&');
-    auto widget = new QCheckBox(label, _extraControls);
+    auto widget = new QCheckBox(resString, _extraControls);
     widget->setHidden(hidden);
     _layout->addWidget(widget);
     _customWidgets.insert(controlId, widget);
@@ -263,6 +263,8 @@ bool KDE5FilePicker::eventFilter(QObject* o, QEvent* e)
         if (!w->parentWidget() && w->isModal())
         {
             KWindowSystem::setMainWindow(w, _winId);
+            if (auto* fileWidget = w->findChild<KFileWidget*>({}, Qt::FindDirectChildrenOnly))
+                fileWidget->setCustomWidget(_extraControls);
             return false;
         }
     }
