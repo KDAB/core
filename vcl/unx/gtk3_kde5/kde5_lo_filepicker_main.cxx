@@ -26,6 +26,7 @@
 
 int main(int argc, char** argv)
 {
+    QApplication::setApplicationName(QStringLiteral("lo_kde5filepicker"));
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
 
