@@ -88,14 +88,10 @@ void SAL_CALL KDE5FilePicker::setTitle(const QString& title) { _dialog->setWindo
 
 bool SAL_CALL KDE5FilePicker::execute()
 {
-    /*
-    _dialog->clearFilter();
-    _dialog->setFilter(_filter);
-
-    if(!_currentFilter.isNull())
-        _dialog->filterWidget()->setCurrentItem(_currentFilter);
-    _dialog->filterWidget()->setEditable(false);
-*/
+    if (!_filters.isEmpty())
+        _dialog->setNameFilters(_filters);
+    if (!_currentFilter.isEmpty())
+        _dialog->selectNameFilter(_currentFilter);
 
     _dialog->show();
     //block and wait for user input
@@ -138,22 +134,21 @@ void SAL_CALL KDE5FilePicker::appendFilter(const QString& title, const QString& 
     // make sure "*.*" is not used as "all files"
     f.replace("*.*", "*");
 
-    _filters << QStringLiteral("%1 (%2)").arg(f, t);
+    _filters << QStringLiteral("%1 (%2)").arg(t, f);
+    _titleToFilters[t] = _filters.constLast();
 }
 
-void SAL_CALL KDE5FilePicker::setCurrentFilter(const QString& title) { _currentFilter = title; }
+void SAL_CALL KDE5FilePicker::setCurrentFilter(const QString& title)
+{
+    _currentFilter = _titleToFilters.value(title);
+}
 
 QString SAL_CALL KDE5FilePicker::getCurrentFilter() const
 {
-    // _dialog->currentFilter() wouldn't quite work, because it returns only e.g. "*.doc",
-    // without the description, and there may be several filters with the same pattern
-    QString filter = _dialog->selectedNameFilter();
-    filter = filter.mid(filter.indexOf('|')
-                        + 1); // convert from the pattern|description format if needed
-    filter.replace("\\/", "/");
+    QString filter = _titleToFilters.key(_dialog->selectedNameFilter());
 
     //default if not found
-    if (filter.isNull())
+    if (filter.isEmpty())
         filter = "ODF Text Document (.odt)";
 
     return filter;
@@ -241,7 +236,10 @@ void SAL_CALL KDE5FilePicker::initialize(bool saveDialog)
     _dialog->setAcceptMode(operationMode);
 
     if (saveDialog)
+    {
         _dialog->setConfirmOverwrite(true);
+        _dialog->setFileMode(QFileDialog::AnyFile);
+    }
 }
 
 void KDE5FilePicker::checkProtocol()

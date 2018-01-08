@@ -39,6 +39,8 @@ protected:
 
     //running filter string to add to dialog
     QStringList _filters;
+    // map of filter titles to full filter for selection
+    QHash<QString, QString> _titleToFilters;
     // string to set the current filter
     QString _currentFilter;
 
