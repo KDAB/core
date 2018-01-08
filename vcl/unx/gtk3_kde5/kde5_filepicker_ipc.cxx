@@ -203,6 +203,11 @@ void FilePickerIpc::readCommand()
             m_filePicker->initialize(saveDialog);
             return;
         }
+        case Commands::EnablePickFolderMode:
+        {
+            m_filePicker->enableFolderMode();
+            return;
+        }
         case Commands::Quit:
         {
             qApp->quit();

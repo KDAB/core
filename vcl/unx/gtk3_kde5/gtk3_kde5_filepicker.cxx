@@ -33,12 +33,6 @@
 #include <osl/mutex.hxx>
 
 #include <fpicker/strings.hrc>
-#include <vcl/svapp.hxx>
-#include <vcl/sysdata.hxx>
-#include <vcl/syswin.hxx>
-
-#include <osl/file.h>
-#include <osl/process.h>
 
 #include "FPServiceInfo.hxx"
 
@@ -49,10 +43,6 @@
 #include "strings.hrc"
 
 #include <future>
-
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-#include <unx/gtk/gtkdata.hxx>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/process/environment.hpp>
@@ -82,48 +72,17 @@ uno::Sequence<OUString> SAL_CALL FilePicker_getSupportedServiceNames()
     aRet[2] = "com.sun.star.ui.dialogs.Gtk3KDE5FilePicker";
     return aRet;
 }
-
-bf::path applicationDirPath()
-{
-    OUString applicationFilePath;
-    osl_getExecutableFile(&applicationFilePath.pData);
-    OUString applicationSystemPath;
-    osl_getSystemPathFromFileURL(applicationFilePath.pData, &applicationSystemPath.pData);
-    auto sysPath = applicationSystemPath.toUtf8();
-    auto ret = bf::path(sysPath.getStr(), sysPath.getStr() + sysPath.getLength());
-    ret.remove_filename();
-    return ret;
-}
-
-bf::path findPickerExecutable()
-{
-    auto paths = boost::this_process::path();
-    paths.insert(paths.begin(), applicationDirPath());
-    auto ret = bp::search_path("lo_kde5filepicker", paths);
-    if (ret.empty())
-        throw bp::process_error(std::make_error_code(std::errc::no_such_file_or_directory),
-                                "could not find lo_kde5filepicker executable");
-    return ret;
-}
 }
 
 // Gtk3KDE5FilePicker
 
 Gtk3KDE5FilePicker::Gtk3KDE5FilePicker(const uno::Reference<uno::XComponentContext>&)
     : Gtk3KDE5FilePicker_Base(_helperMutex)
-    , m_stdout()
-    , m_stdin()
-    , m_process(findPickerExecutable(), bp::std_out > m_stdout, bp::std_in < m_stdin)
 {
     setMultiSelectionMode(false);
 }
 
-Gtk3KDE5FilePicker::~Gtk3KDE5FilePicker()
-{
-    sendCommand(Commands::Quit);
-    if (m_process.running())
-        m_process.wait_for(std::chrono::milliseconds(100));
-}
+Gtk3KDE5FilePicker::~Gtk3KDE5FilePicker() = default;
 
 void SAL_CALL
 Gtk3KDE5FilePicker::addFilePickerListener(const uno::Reference<XFilePickerListener>& xListener)
@@ -141,94 +100,31 @@ Gtk3KDE5FilePicker::removeFilePickerListener(const uno::Reference<XFilePickerLis
 
 void SAL_CALL Gtk3KDE5FilePicker::setTitle(const OUString& title)
 {
-    sendCommand(Commands::SetTitle, title);
+    m_ipc.sendCommand(Commands::SetTitle, title);
 }
 
-static gboolean ignoreDeleteEvent(GtkWidget* /*widget*/, GdkEvent* /*event*/,
-                                  gpointer /*user_data*/)
-{
-    return true;
-}
-
-std::function<void()> Gtk3KDE5FilePicker::blockMainWindow()
-{
-    vcl::Window* pParentWin = Application::GetDefDialogParent();
-    if (!pParentWin)
-        return {};
-
-    const SystemEnvData* pSysData = static_cast<SystemWindow*>(pParentWin)->GetSystemData();
-    if (!pSysData)
-        return {};
-
-    sendCommand(Commands::SetWinId, pSysData->aWindow);
-
-    auto* pMainWindow = reinterpret_cast<GtkWidget*>(pSysData->pWidget);
-    if (!pMainWindow)
-        return {};
-
-    SolarMutexGuard guard;
-    auto deleteEventSignalId = g_signal_lookup("delete_event", gtk_widget_get_type());
-
-    // disable the mainwindow
-    gtk_widget_set_sensitive(pMainWindow, false);
-
-    // block the GtkSalFrame delete_event handler
-    auto blockedHandler = g_signal_handler_find(
-        pMainWindow, static_cast<GSignalMatchType>(G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DATA),
-        deleteEventSignalId, 0, nullptr, nullptr, pSysData->pSalFrame);
-    g_signal_handler_block(pMainWindow, blockedHandler);
-
-    // prevent the window from being closed
-    auto ignoreDeleteEventHandler
-        = g_signal_connect(pMainWindow, "delete_event", G_CALLBACK(ignoreDeleteEvent), nullptr);
-
-    return [pMainWindow, ignoreDeleteEventHandler, blockedHandler] {
-        SolarMutexGuard cleanupGuard;
-        // re-enable window
-        gtk_widget_set_sensitive(pMainWindow, true);
-
-        // allow it to be closed again
-        g_signal_handler_disconnect(pMainWindow, ignoreDeleteEventHandler);
-
-        // unblock the GtkSalFrame handler
-        g_signal_handler_unblock(pMainWindow, blockedHandler);
-    };
-}
-
-sal_Int16 SAL_CALL Gtk3KDE5FilePicker::execute()
-{
-    auto restoreMainWindow = blockMainWindow();
-
-    sendCommand(Commands::Execute);
-    sal_Bool accepted = false;
-    readResponse(accepted);
-
-    if (restoreMainWindow)
-        restoreMainWindow();
-
-    return accepted ? ExecutableDialogResults::OK : ExecutableDialogResults::CANCEL;
-}
+sal_Int16 SAL_CALL Gtk3KDE5FilePicker::execute() { return m_ipc.execute(); }
 
 void SAL_CALL Gtk3KDE5FilePicker::setMultiSelectionMode(sal_Bool multiSelect)
 {
-    sendCommand(Commands::SetMultiSelectionMode, multiSelect);
+    m_ipc.sendCommand(Commands::SetMultiSelectionMode, multiSelect);
 }
 
 void SAL_CALL Gtk3KDE5FilePicker::setDefaultName(const OUString& name)
 {
-    sendCommand(Commands::SetDefaultName, name);
+    m_ipc.sendCommand(Commands::SetDefaultName, name);
 }
 
 void SAL_CALL Gtk3KDE5FilePicker::setDisplayDirectory(const OUString& dir)
 {
-    sendCommand(Commands::SetDisplayDirectory, dir);
+    m_ipc.sendCommand(Commands::SetDisplayDirectory, dir);
 }
 
 OUString SAL_CALL Gtk3KDE5FilePicker::getDisplayDirectory()
 {
-    sendCommand(Commands::GetDisplayDirectory);
+    m_ipc.sendCommand(Commands::GetDisplayDirectory);
     OUString dir;
-    readResponse(dir);
+    m_ipc.readResponse(dir);
     return dir;
 }
 
@@ -242,27 +138,27 @@ uno::Sequence<OUString> SAL_CALL Gtk3KDE5FilePicker::getFiles()
 
 uno::Sequence<OUString> SAL_CALL Gtk3KDE5FilePicker::getSelectedFiles()
 {
-    sendCommand(Commands::GetSelectedFiles);
+    m_ipc.sendCommand(Commands::GetSelectedFiles);
     uno::Sequence<OUString> seq;
-    readResponse(seq);
+    m_ipc.readResponse(seq);
     return seq;
 }
 
 void SAL_CALL Gtk3KDE5FilePicker::appendFilter(const OUString& title, const OUString& filter)
 {
-    sendCommand(Commands::AppendFilter, title, filter);
+    m_ipc.sendCommand(Commands::AppendFilter, title, filter);
 }
 
 void SAL_CALL Gtk3KDE5FilePicker::setCurrentFilter(const OUString& title)
 {
-    sendCommand(Commands::SetCurrentFilter, title);
+    m_ipc.sendCommand(Commands::SetCurrentFilter, title);
 }
 
 OUString SAL_CALL Gtk3KDE5FilePicker::getCurrentFilter()
 {
-    sendCommand(Commands::GetCurrentFilter);
+    m_ipc.sendCommand(Commands::GetCurrentFilter);
     OUString filter;
-    readResponse(filter);
+    m_ipc.readResponse(filter);
     return filter;
 }
 
@@ -282,7 +178,7 @@ void SAL_CALL Gtk3KDE5FilePicker::setValue(sal_Int16 controlId, sal_Int16 nContr
 {
     if (value.has<sal_Bool>())
     {
-        sendCommand(Commands::SetValue, controlId, nControlAction, value.get<sal_Bool>());
+        m_ipc.sendCommand(Commands::SetValue, controlId, nControlAction, value.get<sal_Bool>());
     }
     else
     {
@@ -300,38 +196,30 @@ uno::Any SAL_CALL Gtk3KDE5FilePicker::getValue(sal_Int16 controlId, sal_Int16 nC
         // saves the value of the setting, so LO core is not needed for that either.
         return uno::Any(false);
 
-    sendCommand(Commands::GetValue, controlId, nControlAction);
+    m_ipc.sendCommand(Commands::GetValue, controlId, nControlAction);
 
     sal_Bool value = false;
-    readResponse(value);
+    m_ipc.readResponse(value);
 
     return uno::Any(value);
 }
 
 void SAL_CALL Gtk3KDE5FilePicker::enableControl(sal_Int16 controlId, sal_Bool enable)
 {
-    sendCommand(Commands::EnableControl, controlId, enable);
+    m_ipc.sendCommand(Commands::EnableControl, controlId, enable);
 }
 
 void SAL_CALL Gtk3KDE5FilePicker::setLabel(sal_Int16 controlId, const OUString& label)
 {
-    sendCommand(Commands::SetLabel, controlId, label);
+    m_ipc.sendCommand(Commands::SetLabel, controlId, label);
 }
 
 OUString SAL_CALL Gtk3KDE5FilePicker::getLabel(sal_Int16 controlId)
 {
-    sendCommand(Commands::GetLabel, controlId);
+    m_ipc.sendCommand(Commands::GetLabel, controlId);
     OUString label;
-    readResponse(label);
+    m_ipc.readResponse(label);
     return label;
-}
-
-static OUString getResString(const char* pResId)
-{
-    if (pResId == nullptr)
-        return {};
-
-    return VclResId(pResId);
 }
 
 void Gtk3KDE5FilePicker::addCustomControl(sal_Int16 controlId)
@@ -394,7 +282,7 @@ void Gtk3KDE5FilePicker::addCustomControl(sal_Int16 controlId)
             // code, but the checkbox is hidden and ignored
             sal_Bool hidden = controlId == CHECKBOX_AUTOEXTENSION;
 
-            sendCommand(Commands::AddCheckBox, controlId, hidden, getResString(resId));
+            m_ipc.sendCommand(Commands::AddCheckBox, controlId, hidden, getResString(resId));
 
             break;
         }
@@ -500,10 +388,13 @@ void SAL_CALL Gtk3KDE5FilePicker::initialize(const uno::Sequence<uno::Any>& args
 
     setTitle(getResString(saveDialog ? STR_FPICKER_SAVE : STR_FPICKER_OPEN));
 
-    sendCommand(Commands::Initialize, saveDialog);
+    m_ipc.sendCommand(Commands::Initialize, saveDialog);
 }
 
-void SAL_CALL Gtk3KDE5FilePicker::cancel() {}
+void SAL_CALL Gtk3KDE5FilePicker::cancel()
+{
+    // TODO
+}
 
 void SAL_CALL Gtk3KDE5FilePicker::disposing(const lang::EventObject& rEvent)
 {
@@ -545,47 +436,6 @@ void Gtk3KDE5FilePicker::selectionChanged()
     OSL_TRACE("file selection changed");
     if (m_xListener.is())
         m_xListener->fileSelectionChanged(aEvent);
-}
-
-void readIpcArg(std::istream& stream, OUString& str)
-{
-    const auto buffer = readIpcStringArg(stream);
-    str = OUString::fromUtf8(OString(buffer.data(), buffer.size()));
-}
-
-void readIpcArg(std::istream& stream, uno::Sequence<OUString>& seq)
-{
-    uint32_t numFiles = 0;
-    stream >> numFiles;
-    stream.ignore(); // skip space;
-    seq.realloc(numFiles);
-    for (size_t i = 0; i < numFiles; ++i)
-    {
-        readIpcArg(stream, seq[i]);
-    }
-}
-
-void sendIpcArg(std::ostream& stream, const OUString& string)
-{
-    const auto utf8 = string.toUtf8();
-    sendIpcStringArg(stream, utf8.getLength(), utf8.getStr());
-}
-
-template <typename... Args>
-void Gtk3KDE5FilePicker::sendCommand(Commands command, const Args&... args)
-{
-    sendIpcArgs(m_stdin, command, args...);
-}
-
-template <typename... Args> void Gtk3KDE5FilePicker::readResponse(Args&... args)
-{
-    // read synchronously from a background thread and run the eventloop until the value becomes available
-    // this allows us to keep the GUI responsive and also enables access to the LO clipboard
-    auto valuesRead = std::async(std::launch::async, [&]() { readIpcArgs(m_stdout, args...); });
-    while (valuesRead.wait_for(std::chrono::milliseconds(1)) != std::future_status::ready)
-    {
-        GetGtkSalData()->Yield(false, true);
-    }
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

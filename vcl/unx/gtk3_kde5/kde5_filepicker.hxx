@@ -59,6 +59,8 @@ public:
     explicit KDE5FilePicker(QObject* parent = nullptr);
     ~KDE5FilePicker();
 
+    void enableFolderMode();
+
     // XExecutableDialog functions
     void SAL_CALL setTitle(const QString& rTitle);
     bool SAL_CALL execute();

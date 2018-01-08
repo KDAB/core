@@ -103,8 +103,9 @@ $(eval $(call gb_Library_add_exception_objects,vclplug_gtk3_kde5,\
 	vcl/unx/gtk3_kde5/gtk3_kde5_gtkdata \
 	vcl/unx/gtk3_kde5/gtk3_kde5_gtkinst \
 	vcl/unx/gtk3_kde5/gtk3_kde5_gtksys \
-	vcl/unx/gtk3_kde5/gtk3_kde5_fpicker \
 	vcl/unx/gtk3_kde5/gtk3_kde5_filepicker \
+	vcl/unx/gtk3_kde5/gtk3_kde5_filepicker_ipc \
+	vcl/unx/gtk3_kde5/gtk3_kde5_folderpicker \
 	vcl/unx/gtk3_kde5/gtk3_kde5_cairo \
 	vcl/unx/gtk3_kde5/gtk3_kde5_printwrapper \
 	vcl/unx/gtk3_kde5/gtk3_kde5_salnativewidgets-gtk \

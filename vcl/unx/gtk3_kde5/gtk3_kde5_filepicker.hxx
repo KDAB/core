@@ -35,7 +35,7 @@
 #include <boost/process/child.hpp>
 #include <boost/process/pipe.hpp>
 
-#include "filepicker_ipc_commands.hxx"
+#include "gtk3_kde5_filepicker_ipc.hxx"
 
 #include <functional>
 
@@ -52,9 +52,7 @@ protected:
     css::uno::Reference<css::ui::dialogs::XFilePickerListener> m_xListener;
 
     osl::Mutex _helperMutex;
-    boost::process::ipstream m_stdout;
-    boost::process::opstream m_stdin;
-    boost::process::child m_process;
+    Gtk3KDE5FilePickerIpc m_ipc;
 
 public:
     explicit Gtk3KDE5FilePicker(const css::uno::Reference<css::uno::XComponentContext>&);
@@ -131,10 +129,6 @@ private:
 
     //add a custom control widget to the file dialog
     void addCustomControl(sal_Int16 controlId);
-
-    std::function<void()> blockMainWindow();
-    template <typename... Args> void sendCommand(Commands command, const Args&...);
-    template <typename... Args> void readResponse(Args&...);
 
     // emit XFilePickerListener controlStateChanged event
     void filterChanged();

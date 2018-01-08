@@ -53,6 +53,7 @@ enum class Commands : uint16_t
     AddCheckBox,
     Initialize,
     Quit,
+    EnablePickFolderMode,
 };
 
 inline std::vector<char> readIpcStringArg(std::istream& stream)
