@@ -35,7 +35,6 @@ $(eval $(call gb_Library_set_include,vclplug_gtk3_kde5,\
 $(eval $(call gb_Library_add_cxxflags,vclplug_gtk3_kde5,\
     $$(INCLUDE) \
     $$(GTK3_CFLAGS) \
-    $$(BOOST_CXXFLAGS) \
 ))
 
 $(eval $(call gb_Library_add_defs,vclplug_gtk3_kde5,\
@@ -77,13 +76,10 @@ $(eval $(call gb_Library_use_libraries,vclplug_gtk3_kde5,\
 
 $(eval $(call gb_Library_use_externals,vclplug_gtk3_kde5,\
 	boost_headers \
+	boost_process \
+	boost_filesystem \
 	epoxy \
 	dbus \
-))
-
-$(eval $(call gb_Library_add_libs,vclplug_gtk3_kde5,\
-    $(BOOST_PROCESS_LIB) \
-    $(BOOST_FILESYSTEM_LIB) \
 ))
 
 $(eval $(call gb_Library_add_exception_objects,vclplug_gtk3_kde5,\
