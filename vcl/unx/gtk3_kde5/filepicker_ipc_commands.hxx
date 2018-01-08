@@ -144,17 +144,27 @@ inline void sendIpcArg(std::ostream& stream, sal_Int16 value) { stream << value 
 
 inline void sendIpcArg(std::ostream& stream, sal_uIntPtr value) { stream << value << ' '; }
 
-inline void sendIpcArgs(std::ostream& stream)
+inline void sendIpcArgsImpl(std::ostream& stream)
 {
     // end of arguments, flush stream
     stream << std::endl;
 }
 
 template <typename T, typename... Args>
-inline void sendIpcArgs(std::ostream& stream, const T& arg, const Args&... args)
+inline void sendIpcArgsImpl(std::ostream& stream, const T& arg, const Args&... args)
 {
     sendIpcArg(stream, arg);
-    sendIpcArgs(stream, args...);
+    sendIpcArgsImpl(stream, args...);
+}
+
+template <typename T, typename... Args>
+inline void sendIpcArgs(std::ostream& stream, const T& arg, const Args&... args)
+{
+    sendIpcArgsImpl(stream, arg, args...);
+#ifdef DEBUG_FILEPICKER_IPC
+    std::cerr << "IPC MSG: ";
+    sendIpcArgsImpl(std::cerr, arg, args...);
+#endif
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
