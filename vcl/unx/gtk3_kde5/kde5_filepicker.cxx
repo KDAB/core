@@ -219,11 +219,14 @@ QString SAL_CALL KDE5FilePicker::getLabel(sal_Int16 controlId) const
 
 void KDE5FilePicker::addCheckBox(sal_Int16 controlId, const QString& label, bool hidden)
 {
-    auto resString = label;
-    resString.replace('~', '&');
     auto widget = new QCheckBox(_extraControls);
     widget->setHidden(hidden);
-    _layout->addRow(resString, widget);
+    if (!hidden)
+    {
+        auto resString = label;
+        resString.replace('~', '&');
+        _layout->addRow(resString, widget);
+    }
     _customWidgets.insert(controlId, widget);
 }
 
