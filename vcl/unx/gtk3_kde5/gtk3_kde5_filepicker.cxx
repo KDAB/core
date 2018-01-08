@@ -377,6 +377,11 @@ void SAL_CALL Gtk3KDE5FilePicker::initialize(const uno::Sequence<uno::Any>& args
             addCustomControl(PUSHBUTTON_PLAY);
             break;
 
+        case FILEOPEN_LINK_PLAY:
+            addCustomControl(CHECKBOX_LINK);
+            addCustomControl(PUSHBUTTON_PLAY);
+            break;
+
         case FILEOPEN_READONLY_VERSION:
             addCustomControl(CHECKBOX_READONLY);
             addCustomControl(LISTBOX_VERSION);
@@ -384,6 +389,10 @@ void SAL_CALL Gtk3KDE5FilePicker::initialize(const uno::Sequence<uno::Any>& args
 
         case FILEOPEN_LINK_PREVIEW:
             addCustomControl(CHECKBOX_LINK);
+            addCustomControl(CHECKBOX_PREVIEW);
+            break;
+
+        case FILEOPEN_PREVIEW:
             addCustomControl(CHECKBOX_PREVIEW);
             break;
 
