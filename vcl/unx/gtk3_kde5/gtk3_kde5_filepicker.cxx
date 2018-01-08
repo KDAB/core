@@ -122,9 +122,9 @@ void SAL_CALL Gtk3KDE5FilePicker::setDisplayDirectory(const OUString& dir)
 
 OUString SAL_CALL Gtk3KDE5FilePicker::getDisplayDirectory()
 {
-    m_ipc.sendCommand(Commands::GetDisplayDirectory);
+    auto id = m_ipc.sendCommand(Commands::GetDisplayDirectory);
     OUString dir;
-    m_ipc.readResponse(dir);
+    m_ipc.readResponse(id, dir);
     return dir;
 }
 
@@ -138,9 +138,9 @@ uno::Sequence<OUString> SAL_CALL Gtk3KDE5FilePicker::getFiles()
 
 uno::Sequence<OUString> SAL_CALL Gtk3KDE5FilePicker::getSelectedFiles()
 {
-    m_ipc.sendCommand(Commands::GetSelectedFiles);
+    auto id = m_ipc.sendCommand(Commands::GetSelectedFiles);
     uno::Sequence<OUString> seq;
-    m_ipc.readResponse(seq);
+    m_ipc.readResponse(id, seq);
     return seq;
 }
 
@@ -156,9 +156,9 @@ void SAL_CALL Gtk3KDE5FilePicker::setCurrentFilter(const OUString& title)
 
 OUString SAL_CALL Gtk3KDE5FilePicker::getCurrentFilter()
 {
-    m_ipc.sendCommand(Commands::GetCurrentFilter);
+    auto id = m_ipc.sendCommand(Commands::GetCurrentFilter);
     OUString filter;
-    m_ipc.readResponse(filter);
+    m_ipc.readResponse(id, filter);
     return filter;
 }
 
@@ -196,10 +196,10 @@ uno::Any SAL_CALL Gtk3KDE5FilePicker::getValue(sal_Int16 controlId, sal_Int16 nC
         // saves the value of the setting, so LO core is not needed for that either.
         return uno::Any(false);
 
-    m_ipc.sendCommand(Commands::GetValue, controlId, nControlAction);
+    auto id = m_ipc.sendCommand(Commands::GetValue, controlId, nControlAction);
 
     sal_Bool value = false;
-    m_ipc.readResponse(value);
+    m_ipc.readResponse(id, value);
 
     return uno::Any(value);
 }
@@ -216,9 +216,9 @@ void SAL_CALL Gtk3KDE5FilePicker::setLabel(sal_Int16 controlId, const OUString& 
 
 OUString SAL_CALL Gtk3KDE5FilePicker::getLabel(sal_Int16 controlId)
 {
-    m_ipc.sendCommand(Commands::GetLabel, controlId);
+    auto id = m_ipc.sendCommand(Commands::GetLabel, controlId);
     OUString label;
-    m_ipc.readResponse(label);
+    m_ipc.readResponse(id, label);
     return label;
 }
 

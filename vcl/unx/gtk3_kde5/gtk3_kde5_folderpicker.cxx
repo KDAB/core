@@ -53,17 +53,17 @@ void SAL_CALL Gtk3KDE5FolderPicker::setDisplayDirectory(const OUString& aDirecto
 
 OUString SAL_CALL Gtk3KDE5FolderPicker::getDisplayDirectory()
 {
-    m_ipc.sendCommand(Commands::GetDisplayDirectory);
+    auto id = m_ipc.sendCommand(Commands::GetDisplayDirectory);
     OUString ret;
-    m_ipc.readResponse(ret);
+    m_ipc.readResponse(id, ret);
     return ret;
 }
 
 OUString SAL_CALL Gtk3KDE5FolderPicker::getDirectory()
 {
-    m_ipc.sendCommand(Commands::GetSelectedFiles);
+    auto id = m_ipc.sendCommand(Commands::GetSelectedFiles);
     uno::Sequence<OUString> seq;
-    m_ipc.readResponse(seq);
+    m_ipc.readResponse(id, seq);
     return seq.hasElements() ? seq[0] : OUString();
 }
 

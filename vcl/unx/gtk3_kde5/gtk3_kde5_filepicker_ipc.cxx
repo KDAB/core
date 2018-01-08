@@ -130,9 +130,9 @@ sal_Int16 SAL_CALL Gtk3KDE5FilePickerIpc::execute()
 {
     auto restoreMainWindow = blockMainWindow();
 
-    sendCommand(Commands::Execute);
+    auto id = sendCommand(Commands::Execute);
     sal_Bool accepted = false;
-    readResponse(accepted);
+    readResponse(id, accepted);
 
     if (restoreMainWindow)
         restoreMainWindow();

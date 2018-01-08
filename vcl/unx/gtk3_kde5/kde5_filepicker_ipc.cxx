@@ -73,8 +73,9 @@ void FilePickerIpc::readCommands()
 
 void FilePickerIpc::readCommand()
 {
+    uint64_t messageId = 0;
     Commands command;
-    readIpcArg(std::cin, command);
+    readIpcArgs(std::cin, messageId, command);
 
     switch (command)
     {
@@ -94,7 +95,7 @@ void FilePickerIpc::readCommand()
         }
         case Commands::Execute:
         {
-            sendIpcArgs<sal_Bool>(std::cout, m_filePicker->execute());
+            sendIpcArgs(std::cout, messageId, static_cast<sal_Bool>(m_filePicker->execute()));
             return;
         }
         case Commands::SetMultiSelectionMode:
@@ -120,12 +121,12 @@ void FilePickerIpc::readCommand()
         }
         case Commands::GetDisplayDirectory:
         {
-            sendIpcArgs(std::cout, m_filePicker->getDisplayDirectory());
+            sendIpcArgs(std::cout, messageId, m_filePicker->getDisplayDirectory());
             return;
         }
         case Commands::GetSelectedFiles:
         {
-            sendIpcArgs(std::cout, m_filePicker->getSelectedFiles());
+            sendIpcArgs(std::cout, messageId, m_filePicker->getSelectedFiles());
             return;
         }
         case Commands::AppendFilter:
@@ -144,7 +145,7 @@ void FilePickerIpc::readCommand()
         }
         case Commands::GetCurrentFilter:
         {
-            sendIpcArgs(std::cout, m_filePicker->getCurrentFilter());
+            sendIpcArgs(std::cout, messageId, m_filePicker->getCurrentFilter());
             return;
         }
         case Commands::SetValue:
@@ -161,7 +162,8 @@ void FilePickerIpc::readCommand()
             sal_Int16 controlId = 0;
             sal_Int16 nControlAction = 0;
             readIpcArgs(std::cin, controlId, nControlAction);
-            sendIpcArgs<sal_Bool>(std::cout, m_filePicker->getValue(controlId, nControlAction));
+            sendIpcArgs(std::cout, messageId,
+                        static_cast<sal_Bool>(m_filePicker->getValue(controlId, nControlAction)));
             return;
         }
         case Commands::EnableControl:
@@ -184,7 +186,7 @@ void FilePickerIpc::readCommand()
         {
             sal_Int16 controlId = 0;
             readIpcArgs(std::cin, controlId);
-            sendIpcArgs(std::cout, m_filePicker->getLabel(controlId));
+            sendIpcArgs(std::cout, messageId, m_filePicker->getLabel(controlId));
             return;
         }
         case Commands::AddCheckBox:
