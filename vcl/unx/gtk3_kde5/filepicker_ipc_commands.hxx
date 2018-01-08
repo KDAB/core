@@ -26,6 +26,8 @@
 #include <sal/types.h>
 #include <com/sun/star/uno/Sequence.hxx>
 
+// #define DEBUG_FILEPICKER_IPC
+
 namespace rtl
 {
 class OUString;
@@ -80,6 +82,14 @@ inline void readIpcArg(std::istream& stream, Commands& value)
 
 inline void readIpcArg(std::istream& stream, sal_Bool& value)
 {
+    bool v = false;
+    stream >> v;
+    value = v;
+    stream.ignore(); // skip space
+}
+
+inline void readIpcArg(std::istream& stream, bool& value)
+{
     stream >> value;
     stream.ignore(); // skip space
 }
@@ -123,7 +133,12 @@ inline void sendIpcArg(std::ostream& stream, Commands value)
     stream << static_cast<uint16_t>(value) << ' ';
 }
 
-inline void sendIpcArg(std::ostream& stream, sal_Bool value) { stream << value << ' '; }
+inline void sendIpcArg(std::ostream& stream, sal_Bool value)
+{
+    stream << static_cast<bool>(value) << ' ';
+}
+
+inline void sendIpcArg(std::ostream& stream, bool value) { stream << value << ' '; }
 
 inline void sendIpcArg(std::ostream& stream, sal_Int16 value) { stream << value << ' '; }
 

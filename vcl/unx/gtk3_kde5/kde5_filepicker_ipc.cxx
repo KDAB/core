@@ -95,12 +95,12 @@ void FilePickerIpc::readCommand()
         }
         case Commands::Execute:
         {
-            sendIpcArgs(std::cout, messageId, static_cast<sal_Bool>(m_filePicker->execute()));
+            sendIpcArgs(std::cout, messageId, m_filePicker->execute());
             return;
         }
         case Commands::SetMultiSelectionMode:
         {
-            sal_Bool multiSelection = false;
+            bool multiSelection = false;
             readIpcArgs(std::cin, multiSelection);
             m_filePicker->setMultiSelectionMode(multiSelection);
             return;
@@ -152,7 +152,7 @@ void FilePickerIpc::readCommand()
         {
             sal_Int16 controlId = 0;
             sal_Int16 nControlAction = 0;
-            sal_Bool value = false;
+            bool value = false;
             readIpcArgs(std::cin, controlId, nControlAction, value);
             m_filePicker->setValue(controlId, nControlAction, value);
             return;
@@ -162,14 +162,13 @@ void FilePickerIpc::readCommand()
             sal_Int16 controlId = 0;
             sal_Int16 nControlAction = 0;
             readIpcArgs(std::cin, controlId, nControlAction);
-            sendIpcArgs(std::cout, messageId,
-                        static_cast<sal_Bool>(m_filePicker->getValue(controlId, nControlAction)));
+            sendIpcArgs(std::cout, messageId, m_filePicker->getValue(controlId, nControlAction));
             return;
         }
         case Commands::EnableControl:
         {
             sal_Int16 controlId = 0;
-            sal_Bool enabled = false;
+            bool enabled = false;
             readIpcArgs(std::cin, controlId, enabled);
             m_filePicker->enableControl(controlId, enabled);
             return;
@@ -192,7 +191,7 @@ void FilePickerIpc::readCommand()
         case Commands::AddCheckBox:
         {
             sal_Int16 controlId = 0;
-            sal_Bool hidden = false;
+            bool hidden = false;
             QString label;
             readIpcArgs(std::cin, controlId, hidden, label);
             m_filePicker->addCheckBox(controlId, label, hidden);
@@ -200,7 +199,7 @@ void FilePickerIpc::readCommand()
         }
         case Commands::Initialize:
         {
-            sal_Bool saveDialog = false;
+            bool saveDialog = false;
             readIpcArgs(std::cin, saveDialog);
             m_filePicker->initialize(saveDialog);
             return;
