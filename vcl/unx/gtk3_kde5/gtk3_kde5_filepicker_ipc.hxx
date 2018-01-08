@@ -25,6 +25,7 @@
 #include <osl/mutex.hxx>
 
 #include <rtl/ustrbuf.hxx>
+#include <sal/log.hxx>
 
 #include <boost/process/child.hpp>
 #include <boost/process/pipe.hpp>
@@ -48,6 +49,7 @@ protected:
     boost::process::ipstream m_stdout;
     boost::process::opstream m_stdin;
     boost::process::child m_process;
+    bool m_isReading = false;
 
 public:
     explicit Gtk3KDE5FilePickerIpc();
@@ -55,18 +57,29 @@ public:
 
     sal_Int16 SAL_CALL execute();
 
-    template <typename... Args>
-    void sendCommand(Commands command, const Args&... args)
+    template <typename... Args> void sendCommand(Commands command, const Args&... args)
     {
+        if (m_isReading)
+        {
+            SAL_WARN("gtk3_kde5", "cannot send command " << static_cast<uint16_t>(command)
+                                                         << " while already reading");
+            return;
+        }
         sendIpcArgs(m_stdin, command, args...);
     }
 
-    template <typename... Args>
-    void readResponse(Args&... args)
+    template <typename... Args> void readResponse(Args&... args)
     {
+        if (m_isReading)
+        {
+            SAL_WARN("gtk3_kde5", "cannot read while already reading");
+            return;
+        }
+        m_isReading = true;
         // read synchronously from a background thread and run the eventloop until the value becomes available
         // this allows us to keep the GUI responsive and also enables access to the LO clipboard
         await(std::async(std::launch::async, [&]() { readIpcArgs(m_stdout, args...); }));
+        m_isReading = false;
     }
 
 private:
