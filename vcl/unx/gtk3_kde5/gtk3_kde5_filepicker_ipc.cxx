@@ -113,9 +113,8 @@ OUString getResString(const char* pResId)
 // Gtk3KDE5FilePicker
 
 Gtk3KDE5FilePickerIpc::Gtk3KDE5FilePickerIpc()
-    : m_stdout()
-    , m_stdin()
-    , m_process(findPickerExecutable(), bp::std_out > m_stdout, bp::std_in < m_stdin)
+    // workaround: specify some non-empty argument, otherwise the Qt app will see argc == 0
+    : m_process(findPickerExecutable(), "dummy", bp::std_out > m_stdout, bp::std_in < m_stdin)
 {
 }
 
