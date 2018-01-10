@@ -219,12 +219,13 @@ css::uno::Any Service::getPropertyValue(OUString const& PropertyName)
         || PropertyName == "ooInetFTPProxyPort" || PropertyName == "ooInetHTTPProxyName"
         || PropertyName == "ooInetHTTPProxyPort" || PropertyName == "ooInetHTTPSProxyName"
         || PropertyName == "ooInetHTTPSProxyPort" || PropertyName == "ooInetNoProxy"
-        || PropertyName == "ooInetProxyType" || PropertyName == "TemplatePathVariable")
+        || PropertyName == "ooInetProxyType")
     {
         return css::uno::makeAny(enabled_ ? kde5access::getValue(PropertyName)
                                           : css::beans::Optional<css::uno::Any>());
     }
-    else if (PropertyName == "givenname" || PropertyName == "sn")
+    else if (PropertyName == "givenname" || PropertyName == "sn"
+             || PropertyName == "TemplatePathVariable")
     {
         return css::uno::makeAny(css::beans::Optional<css::uno::Any>());
         //TODO: obtain values from KDE?
