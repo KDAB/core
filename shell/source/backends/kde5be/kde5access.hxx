@@ -24,14 +24,23 @@
 
 #include "com/sun/star/beans/Optional.hpp"
 
-namespace com { namespace sun { namespace star { namespace uno {
-    class Any;
-} } } }
+namespace com
+{
+namespace sun
+{
+namespace star
+{
+namespace uno
+{
+class Any;
+}
+}
+}
+}
 
-namespace kde5access {
-
-css::beans::Optional< css::uno::Any > getValue(OUString const & id);
-
+namespace kde5access
+{
+css::beans::Optional<css::uno::Any> getValue(OUString const& id);
 }
 
 #endif
