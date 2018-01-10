@@ -49,6 +49,9 @@
 #include "sal/types.h"
 #include "uno/current_context.hxx"
 
+#include <osl/process.h>
+#include <osl/thread.h>
+
 #include "kde5access.hxx"
 
 namespace
@@ -120,12 +123,82 @@ private:
     bool enabled_;
 };
 
+// init the QApplication when we load the kde5backend into a non-Qt vclplug (e.g. Gtk3KDE5)
+// TODO: use a helper process to read these values without linking to Qt directly?
+// TODO: share this code somehow with Qt5Instance.cxx?
+void initQApp()
+{
+    char** pFakeArgvFreeable = nullptr;
+
+    int nFakeArgc = 2;
+    const sal_uInt32 nParams = osl_getCommandArgCount();
+    OString aDisplay;
+    OUString aParam, aBin;
+
+    for (sal_uInt32 nIdx = 0; nIdx < nParams; ++nIdx)
+    {
+        osl_getCommandArg(nIdx, &aParam.pData);
+        if (aParam != "-display")
+            continue;
+        if (!pFakeArgvFreeable)
+        {
+            pFakeArgvFreeable = new char*[nFakeArgc + 2];
+            pFakeArgvFreeable[nFakeArgc++] = strdup("-display");
+        }
+        else
+            free(pFakeArgvFreeable[nFakeArgc]);
+
+        ++nIdx;
+        osl_getCommandArg(nIdx, &aParam.pData);
+        aDisplay = OUStringToOString(aParam, osl_getThreadTextEncoding());
+        pFakeArgvFreeable[nFakeArgc] = strdup(aDisplay.getStr());
+    }
+    if (!pFakeArgvFreeable)
+        pFakeArgvFreeable = new char*[nFakeArgc];
+    else
+        nFakeArgc++;
+
+    osl_getExecutableFile(&aParam.pData);
+    osl_getSystemPathFromFileURL(aParam.pData, &aBin.pData);
+    OString aExec = OUStringToOString(aBin, osl_getThreadTextEncoding());
+    pFakeArgvFreeable[0] = strdup(aExec.getStr());
+    pFakeArgvFreeable[1] = strdup("--nocrashhandler");
+
+    char** pFakeArgv = new char*[nFakeArgc];
+    for (int i = 0; i < nFakeArgc; i++)
+        pFakeArgv[i] = pFakeArgvFreeable[i];
+
+    char* session_manager = nullptr;
+    if (getenv("SESSION_MANAGER") != nullptr)
+    {
+        session_manager = strdup(getenv("SESSION_MANAGER"));
+        unsetenv("SESSION_MANAGER");
+    }
+
+    int* pFakeArgc = new int;
+    *pFakeArgc = nFakeArgc;
+    new QApplication(*pFakeArgc, pFakeArgv);
+
+    if (session_manager != nullptr)
+    {
+        // coverity[tainted_string] - trusted source for setenv
+        setenv("SESSION_MANAGER", session_manager, 1);
+        free(session_manager);
+    }
+
+    QApplication::setQuitOnLastWindowClosed(false);
+}
+
 Service::Service()
     : enabled_(false)
 {
     css::uno::Reference<css::uno::XCurrentContext> context(css::uno::getCurrentContext());
     if (context.is())
     {
+        if (!qApp)
+        {
+            initQApp();
+        }
         OUString desktop;
         context->getValueByName("system.desktop-environment") >>= desktop;
         enabled_ = desktop == "KDE5" && qApp != nullptr;
